@@ -59,7 +59,6 @@ router.get("/:reportId", async (req, res) => {
 
 // Add a report
 router.post("/", adminValidation, async (req, res) => {
-  console.log("test");
   //destructuring teamId from decoded token
   const { teamId } = req.decodedJwt;
 
@@ -70,7 +69,6 @@ router.post("/", adminValidation, async (req, res) => {
     const reports = await Reports.findByTeam(teamId);
     res.status(201).json(reports);
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       message: "Sorry, something went wrong while adding the report"
     });
@@ -118,7 +116,6 @@ router.put("/:reportId", adminValidation, async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       message: "Sorry, something went wrong while updating the report"
     });
