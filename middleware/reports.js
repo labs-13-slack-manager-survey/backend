@@ -1,23 +1,19 @@
 module.exports = {
-	adminValidation
+  adminValidation
 };
 
 function adminValidation(req, res, next) {
-	const { teamId, roles } = req.decodedJwt;
+  const { teamId, roles } = req.decodedJwt;
+  console.log(req.decodedJwt);
+  if (!teamId) {
+    return res.status(401).json({ message: "User is not assigned to a team." });
+  }
 
-	if (!teamId) {
-		return res
-			.status(401)
-			.json({ message: 'User is not assigned to a team.' });
-	}
+  if (roles !== "admin") {
+    return res.status(401).json({
+      message: "User is not an admin for this team."
+    });
+  }
 
-	if (roles !== 'admin') {
-		return res
-			.status(401)
-			.json({
-				message: 'User is not an admin for this team.'
-			});
-	}
-
-	next();
+  next();
 }
