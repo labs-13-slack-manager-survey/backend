@@ -13,7 +13,7 @@ const {
 
 router.get("/sentimentAvg/:reportId", async (req, res) => {
   const { reportId } = req.params;
-  const { teamId } = req.query;
+  const { teamId } = req.decodedJwt;
   try {
     const avgSentiments = await Responses.findAvgSentiment(teamId, reportId);
     res.status(200).json(avgSentiments);
