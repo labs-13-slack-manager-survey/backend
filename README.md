@@ -122,6 +122,7 @@ Aside from `auth/firebase` all requests must be made with a header that includes
 | GET    | `/responses` | authenticated users      | Returns a User's responses if they've completed a report today. |
 | POST    | `/responses/:reportId/filter` | authenticated users      | Returns responses for a given report (in params) on a given date for a given user (passed in request body) |
 | GET    | `/responses/:reportId` | authenticated users      | Returns all responses from the last 7 days for a given report specified in the request parameters. |
+| GET    | `/responses/sentimentAvg/:reportId` | authenticated users      | Returns an average of the sentiment responses from the last 7 days for a given report specified in the request parameters and `teamId` the token |
 | POST    | `/responses/:reportId` | authenticated users      | Decodes the user ID from the token in the request header, inserts the responses passed in the request body with the report ID token inserted as a FK. |
 
 #### Slack Routes
