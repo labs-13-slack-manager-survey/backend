@@ -41,7 +41,6 @@ router.get("/", async (req, res) => {
         .json({ message: "The user has not yet filled out any reports" });
     }
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       message: error.message
     });
@@ -97,9 +96,7 @@ router.post("/:reportId", async (req, res) => {
 
     // All questions have passed verification and can now be inserted to the model
     const responseArr = req.body.map(item => {
-      console.log(item);
       if (typeof item.response === "number") {
-        console.log("number");
         return {
           reportId,
           userId: subject,
@@ -108,7 +105,6 @@ router.post("/:reportId", async (req, res) => {
           submitted_date: moment().format()
         };
       }
-      console.log("answer");
       return {
         reportId,
         userId: subject,
@@ -117,7 +113,6 @@ router.post("/:reportId", async (req, res) => {
         submitted_date: moment().format()
       };
     });
-    console.log(responseArr);
     await Responses.add(responseArr);
 
     const batch = {
@@ -127,7 +122,6 @@ router.post("/:reportId", async (req, res) => {
 
     res.status(201).json([batch]);
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       message: error.message
     });
@@ -146,7 +140,6 @@ router.get("/:reportId", async (req, res) => {
     const responses = await filterSevenDays(reportId);
     res.status(200).json(responses);
   } catch (err) {
-    console.log(err);
     res.status(500).json({
       message: err.message
     });
@@ -179,7 +172,6 @@ router.post("/:reportId/filter", async (req, res) => {
       .status(200)
       .json({ clickedDate: date, clickedResponder: user, responses });
   } catch (err) {
-    console.log(err);
     res.status(500).json({
       message: err.message
     });
