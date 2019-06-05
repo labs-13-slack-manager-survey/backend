@@ -13,7 +13,7 @@ const {
 
 router.get("/sentimentAvg/:reportId", async (req, res) => {
   const { reportId } = req.params;
-  const { teamId } = req.query;
+  const { teamId } = req.decodedJwt;
   try {
     const avgSentiments = await Responses.findAvgSentiment(teamId, reportId);
     res.status(200).json(avgSentiments);
@@ -32,7 +32,7 @@ router.get("/", async (req, res) => {
   const end = endOfDay(today);
 
   try {
-    const responses = await Responses.findTodays(userId, reportId, start, end)
+    const responses = await Responses.findTodays(userId, reportId, start, end);
     if (responses.length > 1) {
       return res.status(200).json(responses);
     } else {
@@ -41,7 +41,6 @@ router.get("/", async (req, res) => {
         .json({ message: "The user has not yet filled out any reports" });
     }
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       message: error.message
     });
@@ -51,15 +50,12 @@ router.get("/", async (req, res) => {
 
 // This route will insert responses in the database with a reference to the report id
 router.post("/:reportId", async (req, res) => {
-  console.log("**** /responses/reportId", req.body);
-  console.log(req.decodedJwt);
   const { reportId } = req.params;
   const { subject, teamId } = req.decodedJwt;
   try {
     // Query the db to verify that this team member is verified to insert a
     // resouce for this report.
     const resource = await Reports.findByIdAndTeamId(reportId, teamId);
-
     // Query db to verify that team member has not already submitted a response today.
     const today = new Date();
     const start = startOfDay(today);
@@ -83,16 +79,19 @@ router.post("/:reportId", async (req, res) => {
     // the request body, if the questions don't match, the client has attempted
     // to alter them, throw an error, also check that each response has been
     // filled in.
+
     for (let i = 0; i < req.body.length; i++) {
-      const q = req.body[i].question;
+      const question = req.body[i].question;
 
-      const str = req.body[i].response.trim();
+      const response = resource.isSentiment
+        ? true
+        : req.body[i].response.trim();
 
-      if (str.length < 1) {
+      if (response.length < 1) {
         throw new Error("This report requires all responses to be filled in.");
       }
 
-      if (!resourceQuestions.includes(q)) {
+      if (!resourceQuestions.includes(question)) {
         throw new Error("Incoming questions failed verification check");
       }
     }
@@ -103,7 +102,7 @@ router.post("/:reportId", async (req, res) => {
       question: body.question,
       answer: body.response,
       submitted_date: moment().format(),
-      sentimentRange: body.sentimentVal,
+      sentimentRange: body.sentimentVal
     }));
 
     await Responses.add(responseArr);
@@ -115,7 +114,6 @@ router.post("/:reportId", async (req, res) => {
 
     res.status(201).json([batch]);
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       message: error.message
     });
@@ -134,7 +132,6 @@ router.get("/:reportId", async (req, res) => {
     const responses = await filterSevenDays(reportId);
     res.status(200).json(responses);
   } catch (err) {
-    console.log(err);
     res.status(500).json({
       message: err.message
     });
@@ -167,7 +164,6 @@ router.post("/:reportId/filter", async (req, res) => {
       .status(200)
       .json({ clickedDate: date, clickedResponder: user, responses });
   } catch (err) {
-    console.log(err);
     res.status(500).json({
       message: err.message
     });
