@@ -20,7 +20,7 @@ async function findAvgSentiment(teamId, reportId) {
     .avg("res.sentimentRange as avgSentiment");
 }
 // Create response
-async function add(response) {
+async function add(response, sentimentRange) {
   const [id] = await db("responses")
     .insert(response)
     .returning("id");
@@ -68,7 +68,8 @@ function findByAndJoin(reportId, startday, endDay) {
       "responses.id",
       "responses.question",
       "responses.answer",
-      "responses.submitted_date"
+      "responses.submitted_date",
+      "responses.sentimentRange"
     )
     .orderBy("responses.submitted_date", "desc");
 }

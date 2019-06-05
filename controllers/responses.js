@@ -95,26 +95,16 @@ router.post("/:reportId", async (req, res) => {
         throw new Error("Incoming questions failed verification check");
       }
     }
-
     // All questions have passed verification and can now be inserted to the model
-    const responseArr = req.body.map(item => {
-      if (typeof item.response === "number") {
-        return {
-          reportId,
-          userId: subject,
-          question: item.question,
-          sentimentRange: item.response,
-          submitted_date: moment().format()
-        };
-      }
-      return {
-        reportId,
-        userId: subject,
-        question: item.question,
-        answer: item.response,
-        submitted_date: moment().format()
-      };
-    });
+    const responseArr = req.body.map(body => ({
+      reportId,
+      userId: subject,
+      question: body.question,
+      answer: body.response,
+      submitted_date: moment().format(),
+      sentimentRange: body.sentimentVal
+    }));
+
     await Responses.add(responseArr);
 
     const batch = {

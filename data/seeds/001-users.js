@@ -40,7 +40,6 @@ exports.seed = function(knex) {
         count++;
       }
     }
-    console.log(users);
     return users;
   };
   return knex("users").insert(userSeeds(501));
