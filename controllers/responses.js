@@ -83,7 +83,9 @@ router.post("/:reportId", async (req, res) => {
     for (let i = 0; i < req.body.length; i++) {
       const question = req.body[i].question;
 
-      const response = resource.isSentiment ? 1 : req.body[i].response.trim();
+      const response = resource.isSentiment
+        ? true
+        : req.body[i].response.trim();
 
       if (response.length < 1) {
         throw new Error("This report requires all responses to be filled in.");
