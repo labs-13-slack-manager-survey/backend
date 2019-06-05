@@ -51,15 +51,12 @@ router.get("/", async (req, res) => {
 
 // This route will insert responses in the database with a reference to the report id
 router.post("/:reportId", async (req, res) => {
-  console.log("**** /responses/reportId", req.body);
-  console.log(req.decodedJwt);
   const { reportId } = req.params;
   const { subject, teamId } = req.decodedJwt;
   try {
     // Query the db to verify that this team member is verified to insert a
     // resouce for this report.
     const resource = await Reports.findByIdAndTeamId(reportId, teamId);
-
     // Query db to verify that team member has not already submitted a response today.
     const today = new Date();
     const start = startOfDay(today);
@@ -83,28 +80,44 @@ router.post("/:reportId", async (req, res) => {
     // the request body, if the questions don't match, the client has attempted
     // to alter them, throw an error, also check that each response has been
     // filled in.
+
     for (let i = 0; i < req.body.length; i++) {
-      const q = req.body[i].question;
+      const question = req.body[i].question;
 
-      const str = req.body[i].response.trim();
+      const response = resource.isSentiment ? 1 : req.body[i].response.trim();
 
-      if (str.length < 1) {
+      if (response.length < 1) {
         throw new Error("This report requires all responses to be filled in.");
       }
 
-      if (!resourceQuestions.includes(q)) {
+      if (!resourceQuestions.includes(question)) {
         throw new Error("Incoming questions failed verification check");
       }
     }
-    // All questions have passed verification and can now be inserted to the model
-    const responseArr = req.body.map(body => ({
-      reportId,
-      userId: subject,
-      question: body.question,
-      answer: body.response,
-      submitted_date: moment().format()
-    }));
 
+    // All questions have passed verification and can now be inserted to the model
+    const responseArr = req.body.map(item => {
+      console.log(item);
+      if (typeof item.response === "number") {
+        console.log("number");
+        return {
+          reportId,
+          userId: subject,
+          question: item.question,
+          sentimentRange: item.response,
+          submitted_date: moment().format()
+        };
+      }
+      console.log("answer");
+      return {
+        reportId,
+        userId: subject,
+        question: item.question,
+        answer: item.response,
+        submitted_date: moment().format()
+      };
+    });
+    console.log(responseArr);
     await Responses.add(responseArr);
 
     const batch = {
