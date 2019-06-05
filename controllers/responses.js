@@ -32,7 +32,7 @@ router.get("/", async (req, res) => {
   const end = endOfDay(today);
 
   try {
-    const responses = await Responses.findTodays(userId, reportId, start, end);
+    const responses = await Responses.findTodays(userId, reportId, start, end)
     if (responses.length > 1) {
       return res.status(200).json(responses);
     } else {
@@ -102,7 +102,8 @@ router.post("/:reportId", async (req, res) => {
       userId: subject,
       question: body.question,
       answer: body.response,
-      submitted_date: moment().format()
+      submitted_date: moment().format(),
+      sentimentRange: body.sentimentVal,
     }));
 
     await Responses.add(responseArr);
