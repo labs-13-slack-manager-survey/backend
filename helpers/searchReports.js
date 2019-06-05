@@ -17,7 +17,7 @@ async function searchReports(reportId, date) {
 
     // Check if responses are in array
     if (responses.length > 0) {
-
+      console.log(responses);
       // Insert First Resource
       membersArray.push({
         userId: responses[0].userId,
@@ -29,7 +29,8 @@ async function searchReports(reportId, date) {
             question: responses[0].question,
             answer: responses[0].answer
           }
-        ]
+        ],
+        sentimentRange: responses[0].sentimentRange
       });
 
       // Start loop from second resource
@@ -55,7 +56,8 @@ async function searchReports(reportId, date) {
                 question: responses[i].question,
                 answer: responses[i].answer
               }
-            ]
+            ],
+            sentimentRange: responses[i].sentimentRange
           });
         }
       }
