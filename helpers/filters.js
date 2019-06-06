@@ -1,64 +1,64 @@
-const { searchReports, searchReportsByUser } = require('./searchReports');
-const { subDays } = require('date-fns');
+const { searchReports, searchReportsByUser } = require("./searchReports");
+const { subDays } = require("date-fns");
 
 module.exports = {
   filterByUserAndDate,
   filterByDate,
   filterUserLastSevenDays,
   filterSevenDays
-}
-
+};
 
 // ------- POST /:reportId/filter helpers -------
 
 async function filterByUserAndDate(reportId, userId, date) {
-	const batch = {
-		date,
-		responses: await searchReportsByUser(reportId, userId, date)
-	};
+  const batch = {
+    date,
+    responses: await searchReportsByUser(reportId, userId, date)
+  };
 
-	return [batch]
+  return [batch];
 }
 
 async function filterByDate(reportId, date) {
-	const batch = {
-		date,
-		responses: await searchReports(reportId, date)
-	};
+  const batch = {
+    date,
+    responses: await searchReports(reportId, date)
+  };
 
-	return [batch]
+  return [batch];
 }
 
 async function filterUserLastSevenDays(reportId, userId) {
-	const date = new Date();
+  const date = new Date();
 
-	let payload = [];
+  let payload = [];
 
-	// Loop through the last 7 days and search reports for each day
-	for (let i = 0; i < 7; i++) {
-		const day = subDays(date, i);
-		const batch = {
-			date: day,
-			responses: await searchReportsByUser(reportId, userId, day)
-		};
-		payload.push(batch);
-	}
-	return payload;
+  // Loop through the last 7 days and search reports for each day
+  for (let i = 0; i < 7; i++) {
+    const day = subDays(date, i);
+    const batch = {
+      date: day,
+      responses: await searchReportsByUser(reportId, userId, day)
+    };
+    payload.push(batch);
+  }
+  return payload;
 }
 
-async function filterSevenDays(reportId) {
-	const date = new Date();
+async function filterSevenDays(reportId, roles) {
+  const date = new Date();
 
-	let payload = [];
+  let payload = [];
 
-	// Loop through the last 7 days and search reports for each day
-	for (let i = 0; i < 7; i++) {
-		const day = subDays(date, i);
-		const batch = {
-			date: day,
-			responses: await searchReports(reportId, day)
-		};
-		payload.push(batch);
-	}
-	return payload;
+  // Loop through the last 7 days and search reports for each day
+  for (let i = 0; i < 7; i++) {
+    const day = subDays(date, i);
+    const batch = {
+      date: day,
+      responses: await searchReports(reportId, day, roles)
+    };
+    payload.push(batch);
+    console.log("batch", batch);
+  }
+  return payload;
 }

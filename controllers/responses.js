@@ -14,14 +14,18 @@ const {
 router.get("/sentimentAvg/:reportId", async (req, res) => {
   try {
     const { reportId } = req.params;
-    const { teamId } = req.decodedJwt;
+    const { teamId, roles } = req.decodedJwt;
+
     let { average } = await Responses.findAvgSentiment(teamId, reportId);
     // parse the average into a float to 2 decimal places and converts to number from string
     average = Number(Number.parseFloat(average).toFixed(2));
-    res.status(200).json({ average });
+    await Reports.findByIdAndTeamId(reportId, teamId);
+    const responses = await filterSevenDays(reportId, roles);
+
+    res.status(200).json([{ average }, ...responses]);
   } catch (err) {
     res.status(500).json({ message: err.message });
-    throw new Error(error);
+    throw new Error(err);
   }
 });
 // get a user's responses if they've completed a report today
@@ -124,16 +128,7 @@ router.post("/:reportId", async (req, res) => {
     throw new Error(error);
   }
 });
-router.get("/sentiments/:reportId", async (req, res) => {
-  const { reportId } = req.params;
-  const { teamId } = req.decodedJwt;
-  try {
-    await Reports.findById(reportId, teamId);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-    throw new Error(err);
-  }
-});
+
 // Gets all responses by report for the last 7 days
 router.get("/:reportId", async (req, res) => {
   const { reportId } = req.params;
@@ -141,7 +136,7 @@ router.get("/:reportId", async (req, res) => {
   try {
     // Run a check in the Reports model to verify that the reportId and TeamId are a match
     // If teamId and reportId don't match with resource error will be thrown
-    await Reports.findById(reportId, teamId);
+    await Reports.findByIdAndTeamId(reportId, teamId);
     const responses = await filterSevenDays(reportId);
     res.status(200).json(responses);
   } catch (err) {
