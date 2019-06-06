@@ -17,7 +17,8 @@ async function findAvgSentiment(teamId, reportId) {
     .join("responses as res", "res.reportId", "=", "rep.id")
     .where("res.reportId", reportId)
     .whereNotNull("res.sentimentRange")
-    .avg("res.sentimentRange as avgSentiment");
+    .avg("res.sentimentRange as average")
+    .first();
 }
 // Create response
 async function add(response, sentimentRange) {
