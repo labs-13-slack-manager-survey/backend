@@ -50,14 +50,30 @@ server.use("/api/slack", slackController);
 // error reporting middleware (Must be after all requests)
 errorMiddleware(server);
 
+//add a message to the Array and it will be added in randomly with the deploy, just another quick way to check if changes have occurred or if the backend has been deployed yet
+//this prints out "/" endpoint, feel free to add whatever messages you want
+var randomMessage = ['Hello',
+                    'whose api is this anyway?',
+                    'Who left the API running?',
+                    'welcome to the happiest server on this side of the sea'];
+                    //this prints out on the console, feel free to add whatever messages you want
+var randomWelcome = ['welcome developer',
+                      'hello world'];
+var message = randomMessage[Math.floor(Math.random()*randomMessage.length)];
+var welcome = randomWelcome[Math.floor(Math.random()*randomWelcome.length)];
+
 server.get("/", (req, res) => {
-  res.status(200).json({ message: "Sanity check" });
+  res.status(200).json({ message });
 });
+//this prints out the time
+let now = new Date().getTime(); 
 
 if (require.main == module) {
   server.listen(process.env.PORT, () => {
     console.log(
-      `🚀 Server is running at http://localhost:${process.env.PORT}/`
+      `**${welcome}**\n
+      🚀 Server is running at http://localhost:${process.env.PORT}/ \n
+      TIME IS: ${now}`
     );
   });
 } else {
