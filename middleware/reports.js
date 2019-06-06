@@ -4,7 +4,6 @@ module.exports = {
 
 function adminValidation(req, res, next) {
   const { teamId, roles } = req.decodedJwt;
-  console.log(req.decodedJwt);
   if (!teamId) {
     return res.status(401).json({ message: "User is not assigned to a team." });
   }

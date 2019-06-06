@@ -28,11 +28,9 @@ router.get("/channels", authenticate, async (req, res, next) => {
       }));
       res.status(200).json(channels);
     } else {
-      console.log("data.channels is null:", data);
       res.status(400).json({ message: "Connecting to Slack was unsuccessful" });
     }
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       message: error.message
     });
