@@ -10,13 +10,15 @@ const {
   filterUserLastSevenDays,
   filterSevenDays
 } = require("../helpers/filters");
-
+// returns the average sentiment of a report
 router.get("/sentimentAvg/:reportId", async (req, res) => {
-  const { reportId } = req.params;
-  const { teamId } = req.decodedJwt;
   try {
-    const avgSentiments = await Responses.findAvgSentiment(teamId, reportId);
-    res.status(200).json(avgSentiments);
+    const { reportId } = req.params;
+    const { teamId } = req.decodedJwt;
+    let { average } = await Responses.findAvgSentiment(teamId, reportId);
+    // parse the average into a float to 2 decimal places and converts to number from string
+    average = Number(Number.parseFloat(average).toFixed(2));
+    res.status(200).json({ average });
   } catch (err) {
     res.status(500).json({ message: err.message });
     throw new Error(error);
@@ -49,6 +51,7 @@ router.get("/", async (req, res) => {
 });
 
 // This route will insert responses in the database with a reference to the report id
+
 router.post("/:reportId", async (req, res) => {
   const { reportId } = req.params;
   const { subject, teamId } = req.decodedJwt;
@@ -96,13 +99,14 @@ router.post("/:reportId", async (req, res) => {
       }
     }
     // All questions have passed verification and can now be inserted to the model
+
     const responseArr = req.body.map(body => ({
       reportId,
       userId: subject,
       question: body.question,
       answer: body.response,
       submitted_date: moment().format(),
-      sentimentRange: body.sentimentVal
+      sentimentRange: body.sentimentRange
     }));
 
     await Responses.add(responseArr);
@@ -120,7 +124,16 @@ router.post("/:reportId", async (req, res) => {
     throw new Error(error);
   }
 });
-
+router.get("/sentiments/:reportId", async (req, res) => {
+  const { reportId } = req.params;
+  const { teamId } = req.decodedJwt;
+  try {
+    await Reports.findById(reportId, teamId);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+    throw new Error(err);
+  }
+});
 // Gets all responses by report for the last 7 days
 router.get("/:reportId", async (req, res) => {
   const { reportId } = req.params;

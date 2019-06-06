@@ -10,7 +10,6 @@ router.get("/", async (req, res) => {
     const message = "The users were found in the database.";
     res.status(200).json({ message, users });
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       message:
         "Sorry but something went wrong while retrieving the list of users"
@@ -37,7 +36,6 @@ router.get("/byuser", async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       message: "Sorry but something went wrong while retrieving the user."
     });
@@ -57,7 +55,6 @@ router.get("/team", async (req, res) => {
       users
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       message:
         "Sorry but something went wrong while retrieving the users for this team."
@@ -81,7 +78,6 @@ router.get("/joinCode/:joinCode", async (req, res) => {
       updatedToken
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       message:
         "Sorry but something went wrong while retrieving the team id for this user."
@@ -106,7 +102,6 @@ router.put("/", async (req, res) => {
       token
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       message: "Sorry, there was an error when updating the user."
     });
@@ -131,7 +126,6 @@ router.delete("/", async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       message: "Sorry, there was an error deleting the user."
     });
@@ -153,7 +147,6 @@ router.put("/:userId", adminValidation, async (req, res) => {
       token
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       message: "Sorry, there was an error when updating the user."
     });

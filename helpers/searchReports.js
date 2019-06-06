@@ -1,14 +1,14 @@
-const Responses = require('../models/Responses');
-const dateFns = require('date-fns');
+const Responses = require("../models/Responses");
+const dateFns = require("date-fns");
 
 module.exports = {
   searchReports,
   searchReportsByUser
-}
+};
 
 async function searchReports(reportId, date) {
   const startday = dateFns.startOfDay(date);
-  const endDay = dateFns.endOfDay(date)
+  const endDay = dateFns.endOfDay(date);
   try {
     const responses = await Responses.findByAndJoin(reportId, startday, endDay);
 
@@ -17,7 +17,6 @@ async function searchReports(reportId, date) {
 
     // Check if responses are in array
     if (responses.length > 0) {
-      console.log(responses);
       // Insert First Resource
       membersArray.push({
         userId: responses[0].userId,
@@ -27,10 +26,10 @@ async function searchReports(reportId, date) {
           {
             id: responses[0].id,
             question: responses[0].question,
-            answer: responses[0].answer
+            answer: responses[0].answer,
+            sentimentRange: responses[0].sentimentRange
           }
-        ],
-        sentimentRange: responses[0].sentimentRange
+        ]
       });
 
       // Start loop from second resource
@@ -42,7 +41,8 @@ async function searchReports(reportId, date) {
           membersArray[n].questions.push({
             id: responses[i].id,
             question: responses[i].question,
-            answer: responses[i].answer
+            answer: responses[i].answer,
+            sentimentRange: responses[i].sentimentRange
           });
           // If the fullName's do not match insert a new object
         } else {
@@ -52,19 +52,17 @@ async function searchReports(reportId, date) {
             profilePic: responses[i].profilePic,
             questions: [
               {
-                id: responses[i].id,               
+                id: responses[i].id,
                 question: responses[i].question,
                 answer: responses[i].answer
               }
-            ],
-            sentimentRange: responses[i].sentimentRange
+            ]
           });
         }
       }
     }
     return membersArray;
   } catch (err) {
-    console.log(err);
     //sentry call
     throw new Error(err);
   }
@@ -72,16 +70,20 @@ async function searchReports(reportId, date) {
 
 async function searchReportsByUser(reportId, userId, date) {
   const startday = dateFns.startOfDay(date);
-  const endDay = dateFns.endOfDay(date)
+  const endDay = dateFns.endOfDay(date);
   try {
-    const responses = await Responses.findByUserAndJoin(reportId, userId, startday, endDay);
+    const responses = await Responses.findByUserAndJoin(
+      reportId,
+      userId,
+      startday,
+      endDay
+    );
 
     // Create Members Array
     let membersArray = [];
 
     // Check if responses are in array
     if (responses.length > 0) {
-
       // Insert First Resource
       membersArray.push({
         userId: responses[0].userId,
@@ -115,7 +117,7 @@ async function searchReportsByUser(reportId, userId, date) {
             profilePic: responses[i].profilePic,
             questions: [
               {
-                id: responses[i].id,               
+                id: responses[i].id,
                 question: responses[i].question,
                 answer: responses[i].answer
               }
