@@ -49,6 +49,7 @@ router.get("/", async (req, res) => {
 });
 
 // This route will insert responses in the database with a reference to the report id
+
 router.post("/:reportId", async (req, res) => {
   const { reportId } = req.params;
   const { subject, teamId } = req.decodedJwt;
@@ -96,13 +97,14 @@ router.post("/:reportId", async (req, res) => {
       }
     }
     // All questions have passed verification and can now be inserted to the model
+
     const responseArr = req.body.map(body => ({
       reportId,
       userId: subject,
       question: body.question,
       answer: body.response,
       submitted_date: moment().format(),
-      sentimentRange: body.sentimentVal
+      sentimentRange: body.sentimentRange
     }));
 
     await Responses.add(responseArr);
