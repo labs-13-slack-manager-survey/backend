@@ -124,7 +124,16 @@ router.post("/:reportId", async (req, res) => {
     throw new Error(error);
   }
 });
-
+router.get("/sentiments/:reportId", async (req, res) => {
+  const { reportId } = req.params;
+  const { teamId } = req.decodedJwt;
+  try {
+    await Reports.findById(reportId, teamId);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+    throw new Error(err);
+  }
+});
 // Gets all responses by report for the last 7 days
 router.get("/:reportId", async (req, res) => {
   const { reportId } = req.params;
