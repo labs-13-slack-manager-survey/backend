@@ -21,7 +21,7 @@ async function findAvgSentiment(teamId, reportId) {
     .first();
 }
 // Create response
-async function add(response, sentimentRange) {
+async function add(response) {
   const [id] = await db("responses")
     .insert(response)
     .returning("id");
