@@ -38,6 +38,7 @@ router.get("/:reportId", async (req, res) => {
         message,
         report: {
           ...report,
+          managerQuestions: JSON.parse(report.managerQuestions),
           questions: JSON.parse(report.questions),
           schedule: JSON.parse(report.schedule)
         }
