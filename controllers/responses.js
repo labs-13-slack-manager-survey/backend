@@ -10,13 +10,15 @@ const {
   filterUserLastSevenDays,
   filterSevenDays
 } = require("../helpers/filters");
-
+// returns the average sentiment of a report
 router.get("/sentimentAvg/:reportId", async (req, res) => {
-  const { reportId } = req.params;
-  const { teamId } = req.decodedJwt;
   try {
-    const avgSentiments = await Responses.findAvgSentiment(teamId, reportId);
-    res.status(200).json(avgSentiments);
+    const { reportId } = req.params;
+    const { teamId } = req.decodedJwt;
+    let { average } = await Responses.findAvgSentiment(teamId, reportId);
+    // parse the average into a float to 2 decimal places and converts to number from string
+    average = Number(Number.parseFloat(average).toFixed(2));
+    res.status(200).json({ average });
   } catch (err) {
     res.status(500).json({ message: err.message });
     throw new Error(error);
