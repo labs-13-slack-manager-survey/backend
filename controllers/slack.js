@@ -18,7 +18,7 @@ router.get("/channels", authenticate, async (req, res, next) => {
   try {
     // We need to construct a url with the users slackToken appended as a query param
     const token = req.decodedJwt.slackToken;
-    const endpoint = `https://slack.com/api/conversations.list?token=${token}`;
+    const endpoint = `${apiUrl}/conversations.list?token=${token}`;
     const { data } = await axios.get(endpoint);
     // If the response is successful and the data object contains a channels array extract the id and name properties and return as json
     if (data.channels) {
@@ -37,11 +37,14 @@ router.get("/channels", authenticate, async (req, res, next) => {
     throw new Error(error);
   }
 });
-
+router.post("/bots", async (req, res) => {
+  res.send("hi");
+});
 router.post("/sendReport", slackVerification, async (req, res) => {
+  console.log("sent report");
   const payload = JSON.parse(req.body.payload);
+  console.log("payload", payload);
   const { type, user } = payload;
-
   const slackUserId = user.id;
   const { id, fullName } = await Users.findBySlackId(slackUserId);
 
