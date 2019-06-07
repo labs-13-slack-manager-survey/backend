@@ -12,7 +12,7 @@ const { slackReports } = require("./helpers/slackReports");
 // https://85bf8bff.ngrok.io/api/slack/sendReport
 
 //run every 30 minutes '0 */30 * * * *'
-cron.schedule("0 */30 * * * *", () => {
+cron.schedule("0 */1 * * * *", () => {
   console.log("cron job running");
   slackReports();
 });
