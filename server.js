@@ -12,7 +12,7 @@ const { slackReports } = require("./helpers/slackReports");
 // https://85bf8bff.ngrok.io/api/slack/sendReport
 
 //run every 30 minutes '0 */30 * * * *'
-cron.schedule("0 */30 * * * *", () => {
+cron.schedule("0 */1 * * * *", () => {
   console.log("cron job running");
   slackReports();
 });
@@ -52,21 +52,22 @@ errorMiddleware(server);
 
 //add a message to the Array and it will be added in randomly with the deploy, just another quick way to check if changes have occurred or if the backend has been deployed yet
 //this prints out "/" endpoint, feel free to add whatever messages you want
-var randomMessage = ['Hello',
-                    'whose api is this anyway?',
-                    'Who left the API running?',
-                    'welcome to the happiest server on this side of the sea'];
-                    //this prints out on the console, feel free to add whatever messages you want
-var randomWelcome = ['welcome developer',
-                      'hello world'];
-var message = randomMessage[Math.floor(Math.random()*randomMessage.length)];
-var welcome = randomWelcome[Math.floor(Math.random()*randomWelcome.length)];
+var randomMessage = [
+  "Hello",
+  "whose api is this anyway?",
+  "Who left the API running?",
+  "welcome to the happiest server on this side of the sea"
+];
+//this prints out on the console, feel free to add whatever messages you want
+var randomWelcome = ["welcome developer", "hello world"];
+var message = randomMessage[Math.floor(Math.random() * randomMessage.length)];
+var welcome = randomWelcome[Math.floor(Math.random() * randomWelcome.length)];
 
 server.get("/", (req, res) => {
   res.status(200).json({ message });
 });
 //this prints out the time
-let now = new Date().getTime(); 
+let now = new Date().getTime();
 
 if (require.main == module) {
   server.listen(process.env.PORT, () => {
