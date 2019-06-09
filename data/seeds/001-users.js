@@ -1,7 +1,6 @@
 const moment = require("moment-timezone");
 const jstz = require("jstz");
 const faker = require("faker");
-const bcrypt = require("bcryptjs");
 
 exports.seed = function(knex) {
   const userSeeds = num => {
@@ -20,7 +19,6 @@ exports.seed = function(knex) {
       users.push({
         teamId: team,
         email: faker.internet.email(),
-        password: bcrypt.hashSync("password", 4),
         fullName: faker.name.firstName(),
         roles: count === 1 ? "admin" : "member",
         profilePic: "",
@@ -42,5 +40,5 @@ exports.seed = function(knex) {
     }
     return users;
   };
-  return knex("users").insert(userSeeds(501));
+  return knex("users").insert(userSeeds(5));
 };
