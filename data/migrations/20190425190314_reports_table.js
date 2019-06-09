@@ -11,7 +11,7 @@ exports.up = function(knex) {
     tbl.text("schedule");
 
     tbl.time("scheduleTime", { precision: 2 });
-
+// message is not really required.should be taken out
     tbl.text("message");
 
     tbl.text("questions");
