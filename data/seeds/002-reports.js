@@ -16,9 +16,7 @@ exports.seed = function(knex) {
 				'Sunday'
 			]),
 			scheduleTime: '14:00',
-			recurring: '1week',
 			message: 'Please fill out the report',
-			responseTimeLimit: moment().format(),
 			questions: JSON.stringify([
 				'How do you feel today?',
 				'What did you get done today?',
@@ -27,7 +25,6 @@ exports.seed = function(knex) {
 			]),
 			slackChannelName: null,
 			slackChannelId: null,
-			nextPublishDate: '2019-05-09 14:00:00',
 			active: true
 		},
 		{
@@ -44,9 +41,7 @@ exports.seed = function(knex) {
 				'Sunday'
 			]),
 			scheduleTime: '15:00',
-			recurring: '1week',
 			message: 'Please fill out the report',
-			responseTimeLimit: moment().format(),
 			questions: JSON.stringify([
 				'How do you feel today?',
 				'What did you get done today?',
@@ -55,7 +50,6 @@ exports.seed = function(knex) {
 			]),
 			slackChannelName: null,
 			slackChannelId: null,
-			nextPublishDate: '2019-05-09 15:00:00',
 			active: true
 		},
 		{
@@ -72,9 +66,7 @@ exports.seed = function(knex) {
 				'Sunday'
 			]),
 			scheduleTime: '16:00',
-			recurring: '1week',
 			message: 'Please fill out the report',
-			responseTimeLimit: moment().format(),
 			questions: JSON.stringify([
 				'How do you feel today?',
 				'What did you get done today?',
@@ -83,7 +75,6 @@ exports.seed = function(knex) {
 			]),
 			slackChannelName: null,
 			slackChannelId: null,
-			nextPublishDate: '2019-05-09 16:00:00',
 			active: true
 		},
 		{
@@ -100,9 +91,7 @@ exports.seed = function(knex) {
 				'Sunday'
 			]),
 			scheduleTime: '17:00',
-			recurring: '1week',
 			message: 'Please fill out the report',
-			responseTimeLimit: moment().format(),
 			questions: JSON.stringify([
 				'How do you feel today?',
 				'What did you get done today?',
@@ -111,7 +100,6 @@ exports.seed = function(knex) {
 			]),
 			slackChannelName: null,
 			slackChannelId: null,
-			nextPublishDate: '2019-05-09 17:00:00',
 			active: true
 		},
 		{
@@ -128,9 +116,7 @@ exports.seed = function(knex) {
 				'Sunday'
 			]),
 			scheduleTime: '18:00',
-			recurring: '1week',
 			message: 'Please fill out the report',
-			responseTimeLimit: moment().format(),
 			questions: JSON.stringify([
 				'How do you feel today?',
 				'What did you get done today?',
@@ -139,7 +125,6 @@ exports.seed = function(knex) {
 			]),
 			slackChannelName: null,
 			slackChannelId: null,
-			nextPublishDate: '2019-05-09 14:00:00',
 			active: true
 		}
 	]);
