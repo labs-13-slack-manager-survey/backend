@@ -23,7 +23,7 @@ const config = {
 };
 
 admin.initializeApp({ credential: admin.credential.cert(config) });
-// authorize user via firebase auth, create a new user in our database if the user does not exist, 
+// authorize user via firebase auth, create a new user in our database if the user does not exist,
 router.post("/firebase", async ({ body }, res) => {
   const { accessToken } = body.user.stsTokenManager;
   try {
@@ -57,7 +57,6 @@ router.post("/firebase", async ({ body }, res) => {
       res.status(201).json(token);
     }
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: "Error authenticating user" });
 
     throw new Error(error);
@@ -112,7 +111,6 @@ router.get("/slack/", authenticate, async (req, res, next) => {
       return res.status(202).json({ token });
     }
   } catch (err) {
-    console.log(err);
     res.status(500).json({ message: "Error authenticating user" });
     throw new Error(err);
   }
