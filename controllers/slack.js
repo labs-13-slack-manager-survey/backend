@@ -37,9 +37,7 @@ router.get("/channels", authenticate, async (req, res, next) => {
     throw new Error(error);
   }
 });
-router.post("/bots", async (req, res) => {
-  res.send("hi");
-});
+
 router.post("/sendReport", slackVerification, async (req, res) => {
   const payload = JSON.parse(req.body.payload);
   const { type, user } = payload;
@@ -56,11 +54,24 @@ router.post("/sendReport", slackVerification, async (req, res) => {
 
   if (type === "block_actions") {
     const value = JSON.parse(payload.actions[0].value);
+    console.log("value", value);
     //pull questions out of the value and put them in an array
-    const questions = JSON.parse(value.questions);
-
+    const { questions, managerQuestions, managerResponses } = JSON.parse(value);
+    console.log(managerQuestions);
+    console.log(managerResponses);
+    const managerQ = managerResponses.map(response => {
+      let object = {
+        label: response,
+        type: "text",
+        name: response,
+        value: payload.message.text
+      };
+      return object;
+    });
+    console.log("mQ", managerQ);
     //map through questions and create an interactive element for each
-    const elements = questions.map((question, index) => {
+    const elements = questions.map(question => {
+      console.log("question", question);
       let object = {
         label: question,
         type: "textarea",
@@ -69,7 +80,7 @@ router.post("/sendReport", slackVerification, async (req, res) => {
       };
       return object;
     });
-
+    // const managerQ = value.
     try {
       //call openDialog to send modal in DM
       openDialog(payload, fullName, value, channel.id, elements);
@@ -130,6 +141,8 @@ router.post("/sendReport", slackVerification, async (req, res) => {
 
 // open the dialog by calling dialogs.open method and sending the payload
 const openDialog = async (payload, real_name, value, channel, elements) => {
+  console.log("value", value);
+  console.log("elements", elements);
   // value.id is the id of the report
   const dialogData = {
     token: process.env.SLACK_ACCESS_TOKEN,
