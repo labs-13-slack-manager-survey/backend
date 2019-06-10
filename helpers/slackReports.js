@@ -58,6 +58,8 @@ const slackReports = async () => {
     const stitchedReports = await Promise.all(
       reports.map(async report => {
         let users = await Users.findByTeam(report.teamId);
+        // getse all the users in a team
+        // let members = await Users.findMembers(report.teamId); use this line instead to find only members and not managers
         const filteredUsers = users.filter(
           user => user.slackUserId && user.active
         );
@@ -73,7 +75,6 @@ const slackReports = async () => {
     await button(stitchedReports);
     return "The function has successfully ran";
   } catch (error) {
-    console.log(error);
     //sentry call
     throw new Error(error);
   }
@@ -92,7 +93,7 @@ module.exports = {
 
 const url = "https://slack.com/api/im.open";
 const postUrl = "https://slack.com/api/chat.postMessage";
-
+const channelUrl = "https://slack.com/api/conversations.list";
 const headers = {
   "Content-type": "application/json; charset=utf-8",
   Authorization: `Bearer ${process.env.SLACK_ACCESS_TOKEN}`
@@ -109,8 +110,9 @@ const button = async reports => {
         };
 
         const { data } = await axios.post(url, message, { headers });
-
+        // used to get the id of the channel
         const response = {
+          // the response is the message that's being sent to slack.
           channel: data.channel.id,
           attachments: [
             {
@@ -141,7 +143,6 @@ const button = async reports => {
       });
     });
   } catch (err) {
-    console.log(err);
     //sentry call
     throw new Error(err);
   }

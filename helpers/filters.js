@@ -58,7 +58,6 @@ async function filterSevenDays(reportId, roles) {
       responses: await searchReports(reportId, day, roles)
     };
     payload.push(batch);
-    console.log("batch", batch);
   }
   return payload;
 }

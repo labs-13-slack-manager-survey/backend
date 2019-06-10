@@ -10,6 +10,8 @@ module.exports = {
   findBySlackId,
   findByTeam,
   findByEmail,
+  findManager,
+  findMembers,
   update,
   updateTeamId,
   remove
@@ -74,7 +76,16 @@ async function findByTeam(teamId) {
   const users = await db("users").where({ teamId });
   return users;
 }
-
+async function findManager(teamId) {
+  const manager = await db("users")
+    .where({ teamId, roles: "admin" })
+    .first();
+  return manager;
+}
+async function findMembers(teamId) {
+  const members = await db("users").where({ teamId, roles: "member" });
+  return members;
+}
 // Update user
 async function update(id, user) {
   const editedUser = await db("users")

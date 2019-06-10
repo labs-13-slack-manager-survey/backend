@@ -11,12 +11,8 @@ exports.up = function(knex) {
     tbl.text("schedule");
 
     tbl.time("scheduleTime", { precision: 2 });
-
-    tbl.string("recurring", 128);
-
+// message is not really required.should be taken out
     tbl.text("message");
-
-    tbl.datetime("responseTimeLimit", { precision: 2 });
 
     tbl.text("questions");
 
@@ -24,7 +20,6 @@ exports.up = function(knex) {
 
     tbl.string("slackChannelId");
 
-    tbl.datetime("nextPublishDate", { precision: 2 });
     
     tbl.boolean("isSentiment").defaultTo("false");
     tbl
