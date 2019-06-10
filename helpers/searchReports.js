@@ -169,7 +169,6 @@ async function searchReportsByUser(reportId, userId, date) {
     }
     return membersArray;
   } catch (err) {
-    console.log(err);
     //sentry call
     throw new Error(err);
   }
