@@ -11,7 +11,7 @@ exports.up = function(knex) {
     tbl.text("schedule");
 
     tbl.time("scheduleTime", { precision: 2 });
-// message is not really required.should be taken out
+    // message is not really required.should be taken out
     tbl.text("message");
 
     tbl.text("questions");
@@ -20,7 +20,6 @@ exports.up = function(knex) {
 
     tbl.string("slackChannelId");
 
-    
     tbl.boolean("isSentiment").defaultTo("false");
     tbl
       .boolean("active")
@@ -31,7 +30,7 @@ exports.up = function(knex) {
 
     tbl.text("ScrumMasterQuestions")
 
-      tbl.text("managerResponse")
+    tbl.text("managerResponses");
   });
 };
 
