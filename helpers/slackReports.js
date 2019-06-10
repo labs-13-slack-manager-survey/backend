@@ -92,7 +92,7 @@ module.exports = {
 
 const url = "https://slack.com/api/im.open";
 const postUrl = "https://slack.com/api/chat.postMessage";
-const channelUrl='https://slack.com/api/conversations.list'
+const channelUrl = "https://slack.com/api/conversations.list";
 const headers = {
   "Content-type": "application/json; charset=utf-8",
   Authorization: `Bearer ${process.env.SLACK_ACCESS_TOKEN}`
@@ -107,9 +107,8 @@ const button = async reports => {
           include_locale: true,
           return_im: true
         };
-        
+
         const { data } = await axios.post(url, message, { headers });
-        console.log('*******',data)
         // used to get the id of the channel
         const response = {
           // the response is the message that's being sent to slack.
