@@ -41,9 +41,7 @@ router.post("/bots", async (req, res) => {
   res.send("hi");
 });
 router.post("/sendReport", slackVerification, async (req, res) => {
-  console.log("sent report");
   const payload = JSON.parse(req.body.payload);
-  console.log("payload", payload);
   const { type, user } = payload;
   const slackUserId = user.id;
   const { id, fullName } = await Users.findBySlackId(slackUserId);
