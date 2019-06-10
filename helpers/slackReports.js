@@ -58,6 +58,8 @@ const slackReports = async () => {
     const stitchedReports = await Promise.all(
       reports.map(async report => {
         let users = await Users.findByTeam(report.teamId);
+        // getse all the users in a team
+        // let members = await Users.findMembers(report.teamId); use this line instead to find only members and not managers
         const filteredUsers = users.filter(
           user => user.slackUserId && user.active
         );
@@ -73,7 +75,6 @@ const slackReports = async () => {
     await button(stitchedReports);
     return "The function has successfully ran";
   } catch (error) {
-    console.log(error);
     //sentry call
     throw new Error(error);
   }
@@ -142,7 +143,6 @@ const button = async reports => {
       });
     });
   } catch (err) {
-    console.log(err);
     //sentry call
     throw new Error(err);
   }
