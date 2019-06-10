@@ -45,6 +45,14 @@ router.post("/sendReport", slackVerification, async (req, res) => {
   const { type, user } = payload;
   const slackUserId = user.id;
   const { id, fullName } = await Users.findBySlackId(slackUserId);
+  // get the id of general channel
+  const endpoint = `${apiUrl}/conversations.list?token=${
+    process.env.SLACK_ACCESS_TOKEN
+  }`;
+  const { data } = await axios.get(endpoint);
+  const channel = data.channels.find(
+    channel => channel.name.toLowerCase() === "general"
+  );
 
   if (type === "block_actions") {
     const value = JSON.parse(payload.actions[0].value);
@@ -64,16 +72,16 @@ router.post("/sendReport", slackVerification, async (req, res) => {
 
     try {
       //call openDialog to send modal in DM
-      openDialog(payload, fullName, value, elements);
+      openDialog(payload, fullName, value, channel.id, elements);
     } catch (error) {
       res
         .status(500)
         .json({ message: "Something went wrong while getting the questions." });
     }
   } else if (type === "dialog_submission") {
-    const { submission } = payload;
-    const reportId = parseInt(/\w+/.exec(payload.state)[0]);
-    const channelId = /\w+$/.exec(payload.state)[0];
+    const { submission, state } = payload;
+    const reportId = parseInt(/\w+/.exec(state)[0]);
+    const channelId = channel.id;
 
     //Submissions comes in as { question: answer ... send_by: full_name }. This strips out the questions
     const questions = Object.keys(submission).filter(
@@ -109,11 +117,9 @@ router.post("/sendReport", slackVerification, async (req, res) => {
 
       //insert array of response objects to response table
       await Responses.add(responseArr);
-
       //not sure we need this
       res.status(200);
     } catch (error) {
-      console.log(error);
       res.status(500).json({
         message: error.message
       });
@@ -123,15 +129,16 @@ router.post("/sendReport", slackVerification, async (req, res) => {
 });
 
 // open the dialog by calling dialogs.open method and sending the payload
-const openDialog = async (payload, real_name, value, elements) => {
+const openDialog = async (payload, real_name, value, channel, elements) => {
+  // value.id is the id of the report
   const dialogData = {
     token: process.env.SLACK_ACCESS_TOKEN,
     trigger_id: payload.trigger_id,
     dialog: JSON.stringify({
       title: value.reportName,
       callback_id: "report",
-      submit_label: "report",
-      state: `${value.id} ${value.slackChannelId}`,
+      submit_label: "submit",
+      state: `${value.id} ${channel}`,
       elements: [
         ...elements,
         {
