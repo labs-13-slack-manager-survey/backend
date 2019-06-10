@@ -67,6 +67,7 @@ router.post("/", adminValidation, async (req, res) => {
 
   try {
     const report = await Reports.add(newReport);
+    console.log("report", report);
     const reports = await Reports.findByTeam(teamId);
     res.status(201).json(reports);
   } catch (error) {
