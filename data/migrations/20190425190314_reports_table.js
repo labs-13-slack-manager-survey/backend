@@ -26,6 +26,9 @@ exports.up = function(knex) {
       .defaultTo(true)
       .notNullable();
 
+    tbl.text("EngineeringManagerQuestions")
+
+    tbl.text("ScrumMasterQuestions")
 
     tbl.text("managerResponses");
   });
