@@ -78,12 +78,12 @@ async function findByTeam(teamId) {
 }
 async function findManager(teamId) {
   const manager = await db("users")
-    .where({ teamId, isManager: true })
+    .where({ teamId, roles: "admin" })
     .first();
   return manager;
 }
 async function findMembers(teamId) {
-  const members = await db("users").where({ teamId, isManager: false });
+  const members = await db("users").where({ teamId, roles: "member" });
   return members;
 }
 // Update user
