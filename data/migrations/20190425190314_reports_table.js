@@ -28,7 +28,7 @@ exports.up = function(knex) {
 
     tbl.text("EngineeringManagerQuestions")
 
-    tbl.text("ScrumMasterQuestions")
+    tbl.text("ProjectManagerQuestions")
 
     tbl.text("managerResponses");
   });
