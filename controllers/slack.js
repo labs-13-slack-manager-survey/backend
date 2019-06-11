@@ -56,7 +56,9 @@ router.post("/sendReport", slackVerification, async (req, res) => {
     const value = JSON.parse(payload.actions[0].value);
     console.log("value", value);
     //pull questions out of the value and put them in an array
-    const { questions, managerQuestions, managerResponses } = JSON.parse(value);
+    const questions = JSON.parse(value.questions);
+    const managerQuestions = JSON.parse(value.managerQuestions);
+    const managerResponses = JSON.parse(value.managerResponses);
     console.log(managerQuestions);
     console.log(managerResponses);
     const managerQ = managerResponses.map(response => {
