@@ -7,5 +7,6 @@ describe('Site Live', function() {
 describe('Login', () => {
     it('Second Load' ,() =>{
         cy.visit('http://localhost:3000/')
+        cy.get('#action-canvas').click('center')
     })
 })
