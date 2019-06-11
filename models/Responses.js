@@ -5,6 +5,7 @@ module.exports = {
   find,
   findBy,
   findById,
+  findByDistict,
   findByAndJoin,
   findTodays,
   findByUserAndJoin,
@@ -37,6 +38,12 @@ function find() {
 // Get responses by filter
 function findBy(filter) {
   return db("responses").where(filter);
+}
+// Get responses of a member by filter
+function findByDistict(filter) {
+  return db("responses")
+    .where(filter)
+    .distinct("userId");
 }
 
 // Get submitted report by user and by date
