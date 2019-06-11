@@ -1,7 +1,26 @@
 const router = require("express").Router();
 const Reports = require("../models/Reports");
+const Responses = require("../models/Responses");
 const { adminValidation } = require("../middleware/reports");
-
+const Users = require("../models/Users");
+// This route returns the submission rate of a given report
+router.get("/submissionRate/:reportId", async (req, res) => {
+  try {
+    const { teamId } = req.decodedJwt;
+    const { reportId } = req.params;
+    const responses = await Responses.findByDistict({ reportId });
+    const members = await Users.findMembers(teamId);
+    const result = Number.parseFloat(
+      (responses.length / (members.length || 1)) * 100
+    ).toFixed(2);
+    res.status(200).json({ submissionRate: result });
+  } catch (err) {
+    res.status(500).json({
+      message:
+        "Sorry but something went wrong while retrieving the list of reports"
+    });
+  }
+});
 // This route will return all reports by Team ID
 router.get("/", async (req, res) => {
   const { teamId } = req.decodedJwt;
