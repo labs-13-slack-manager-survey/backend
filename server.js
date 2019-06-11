@@ -60,7 +60,8 @@ var randomMessage = [
   "Welcome to the happiest server on this side of the sea, love.",
   "Reminder: Tip Your Server",
   "Don't Worry 🐝  Happy",
-  "Watch Out For  🚩"
+  "Watch Out For  🚩",
+  "Testing Is Good"
 ];
 //this prints out on the console, feel free to add whatever messages you want
 var message = randomMessage[Math.floor(Math.random() * randomMessage.length)];

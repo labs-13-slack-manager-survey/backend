@@ -4,9 +4,9 @@ describe('Login', () => {
     })
 })
 
-describe('Site Live', function() {
-    it('Site Live', function() {
-    cy.visit('https://slackrs-app.herokuapp.com/')
-    cy.contains('message')
-    })
-    })
+// describe('Site Live', function() {
+//     it('Site Live', function() {
+//     cy.visit('https://slackrs-app.herokuapp.com/')
+//     cy.contains('message')
+//     })
+//     })
