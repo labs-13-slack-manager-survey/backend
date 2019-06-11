@@ -53,15 +53,18 @@ errorMiddleware(server);
 //add a message to the Array and it will be added in randomly with the deploy, just another quick way to check if changes have occurred or if the backend has been deployed yet
 //this prints out "/" endpoint, feel free to add whatever messages you want
 var randomMessage = [
-  "Hello",
-  "whose api is this anyway?",
+  "Hello World",
+  "Welcome Developer",
+  "Whose api is this anyway?",
   "Who left the API running?",
-  "welcome to the happiest server on this side of the sea"
+  "Welcome to the happiest server on this side of the sea, love.",
+  "Reminder: Tip Your Server",
+  "Don't Worry 🐝  Happy",
+  "Watch Out For  🚩",
+  "Testing Is Good"
 ];
 //this prints out on the console, feel free to add whatever messages you want
-var randomWelcome = ["welcome developer", "hello world"];
 var message = randomMessage[Math.floor(Math.random() * randomMessage.length)];
-var welcome = randomWelcome[Math.floor(Math.random() * randomWelcome.length)];
 
 server.get("/", (req, res) => {
   res.status(200).json({ message });
@@ -72,8 +75,9 @@ let now = new Date().getTime();
 if (require.main == module) {
   server.listen(process.env.PORT, () => {
     console.log(
-      `**${welcome}**\n
-      🚀 Server is running at http://localhost:${process.env.PORT}/ \n
+      `*\n
+      ${message}\n
+      🚀  Server is running at http://localhost:${process.env.PORT}/ \n
       TIME IS: ${now}`
     );
   });
