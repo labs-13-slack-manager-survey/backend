@@ -3,7 +3,10 @@ const Reports = require("../models/Reports");
 const Responses = require("../models/Responses");
 const { adminValidation } = require("../middleware/reports");
 const Users = require("../models/Users");
-const { getHistoricalSubmissionRate } = require("../helpers/submissionRates");
+const {
+  getHistoricalSubmissionRate,
+  getHistoricalSubmissionRateByReport
+} = require("../helpers/submissionRates");
 // Get the historical submission rate of a team by teamId
 router.get("/submissionRate", async (req, res) => {
   try {
@@ -19,13 +22,18 @@ router.get("/submissionRate/:reportId", async (req, res) => {
   try {
     const { teamId } = req.decodedJwt;
     const { reportId } = req.params;
-    const responses = await Responses.findDistinctUserCountBy({ reportId });
-    const members = await Users.findMembersCount(teamId);
+    const rate = await getHistoricalSubmissionRateByReport(teamId, reportId);
 
-    const result = Number.parseFloat(
-      (Number(responses.count) / (Number(members.count) || 1)) * 100
-    ).toFixed(2);
-    res.status(200).json({ submissionRate: result });
+    // const responses = await Responses.findDistinctUserCountBy({ reportId });
+    // const members = await Users.findMembersCount(teamId);
+
+    // const result = Number.parseFloat(
+    //   (Number(responses.count) / (Number(members.count) || 1)) * 100
+    // ).toFixed(2);
+    res.status(200).json({
+      report: reportId,
+      historicalSubmissionRate: rate
+    });
   } catch (err) {
     res.status(500).json({
       message:
