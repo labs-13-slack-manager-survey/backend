@@ -5,11 +5,13 @@ module.exports = {
   searchReports,
   searchReportsByUser
 };
-
+// Get reports by reportID for the date specified
 async function searchReports(reportId, date, roles) {
+  // have to pass date as a Date object
   const startday = dateFns.startOfDay(date);
   const endDay = dateFns.endOfDay(date);
   try {
+    // Get responses by report ID for today
     const responses = await Responses.findByAndJoin(reportId, startday, endDay);
     // Create Members Array
     let membersArray = [];
