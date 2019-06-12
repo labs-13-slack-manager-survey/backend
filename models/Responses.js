@@ -5,7 +5,8 @@ module.exports = {
   find,
   findBy,
   findById,
-  findByDistict,
+  findDistinctUserCountBy,
+  // findSubmissionRatePerMemberBy,
   findByAndJoin,
   findTodays,
   findByUserAndJoin,
@@ -40,12 +41,26 @@ function findBy(filter) {
   return db("responses").where(filter);
 }
 // Get responses of a member by filter
-function findByDistict(filter) {
+function findDistinctUserCountBy(filter) {
   return db("responses")
     .where(filter)
-    .distinct("userId");
+    .countDistinct("userId")
+    .first();
 }
+// Get submission rate of a member
+// async function findSubmissionRatePerMemberBy(reportId, teamId) {
+//   // get all responses of a member
+//   const responses = await db("responses")
+//     .where({ reportId })
+//     .select("id", "userId", "submitted_date");
+//   // get all members of a team
+//   const members = await db("users").where({ teamId });
+//   responses.map(response=>{
 
+//   })
+//   // calculate submission rate
+//   return result;
+// }
 // Get submitted report by user and by date
 function findTodays(user, reportId, startday, endDay) {
   return db("responses")
