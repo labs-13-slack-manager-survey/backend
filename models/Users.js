@@ -12,6 +12,7 @@ module.exports = {
   findByEmail,
   findManager,
   findMembers,
+  findMembersCount,
   update,
   updateTeamId,
   remove
@@ -76,14 +77,24 @@ async function findByTeam(teamId) {
   const users = await db("users").where({ teamId });
   return users;
 }
+// Get manager by team Id
 async function findManager(teamId) {
   const manager = await db("users")
     .where({ teamId, roles: "admin" })
     .first();
   return manager;
 }
+// Get members by team Id
 async function findMembers(teamId) {
   const members = await db("users").where({ teamId, roles: "member" });
+  return members;
+}
+// Get number of members by team ID
+async function findMembersCount(teamId) {
+  const members = await db("users")
+    .where({ teamId, roles: "member" })
+    .count("id")
+    .first();
   return members;
 }
 // Update user
@@ -93,7 +104,7 @@ async function update(id, user) {
     .update(user);
   return findById(id);
 }
-
+// Update TeamId
 async function updateTeamId(id, user) {
   const editedUser = await db("users")
     .where({ id })
