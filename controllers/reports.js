@@ -3,15 +3,30 @@ const Reports = require("../models/Reports");
 const Responses = require("../models/Responses");
 const { adminValidation } = require("../middleware/reports");
 const Users = require("../models/Users");
+router.get("/submissionRatePerMember/:reportId", async (req, res) => {
+  try {
+    const { teamId } = req.decodedJwt;
+    const { reportId } = req.params;
+    const responses = await Responses.findSubmissionRatePerMemberBy(
+      reportId,
+      teamId
+    );
+    const members = await Users.findMembers(teamId);
+    res.json(responses);
+  } catch (err) {
+    console.log(err);
+  }
+});
 // This route returns the submission rate of a given report
 router.get("/submissionRate/:reportId", async (req, res) => {
   try {
     const { teamId } = req.decodedJwt;
     const { reportId } = req.params;
-    const responses = await Responses.findByDistict({ reportId });
-    const members = await Users.findMembers(teamId);
+    const responses = await Responses.findDistinctUserCountBy({ reportId });
+    const members = await Users.findMembersCount(teamId);
+
     const result = Number.parseFloat(
-      (responses.length / (members.length || 1)) * 100
+      (Number(responses.count) / (Number(members.count) || 1)) * 100
     ).toFixed(2);
     res.status(200).json({ submissionRate: result });
   } catch (err) {
