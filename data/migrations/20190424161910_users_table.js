@@ -30,7 +30,8 @@ exports.up = function(knex) {
       .boolean("isManager")
       .defaultTo(false)
       .notNullable();
-
+    tbl.text("pollsReceived").defaultTo("[]");
+    tbl.text("responsesMade").defaultTo("[]");
     tbl.text("slackToken").unique();
 
     tbl.string("slackUserId");

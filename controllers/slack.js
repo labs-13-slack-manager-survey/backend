@@ -51,29 +51,26 @@ router.post("/sendReport", slackVerification, async (req, res) => {
   const channel = data.channels.find(
     channel => channel.name.toLowerCase() === "general"
   );
-
   if (type === "block_actions") {
     const value = JSON.parse(payload.actions[0].value);
-    console.log("value", value);
     //pull questions out of the value and put them in an array
     const questions = JSON.parse(value.questions);
     const managerQuestions = JSON.parse(value.managerQuestions);
     const managerResponses = JSON.parse(value.managerResponses);
-    console.log(managerQuestions);
-    console.log(managerResponses);
-    const managerQ = managerResponses.map(response => {
-      let object = {
-        label: response,
-        type: "text",
-        name: response,
-        value: payload.message.text
-      };
-      return object;
-    });
-    console.log("mQ", managerQ);
+
+    const managerQ =
+      managerResponses &&
+      managerResponses.map(response => {
+        let object = {
+          label: response,
+          type: "text",
+          name: response,
+          value: payload.message.text
+        };
+        return object;
+      });
     //map through questions and create an interactive element for each
     const elements = questions.map(question => {
-      console.log("question", question);
       let object = {
         label: question,
         type: "textarea",
@@ -85,6 +82,7 @@ router.post("/sendReport", slackVerification, async (req, res) => {
     // const managerQ = value.
     try {
       //call openDialog to send modal in DM
+
       openDialog(payload, fullName, value, channel.id, elements);
     } catch (error) {
       res
@@ -94,7 +92,8 @@ router.post("/sendReport", slackVerification, async (req, res) => {
   } else if (type === "dialog_submission") {
     const { submission, state } = payload;
     const reportId = parseInt(/\w+/.exec(state)[0]);
-    const channelId = channel.id;
+    let [report_Id, channelId, userId] = payload.state.split(" ");
+    // const channelId = channel.id;
 
     //Submissions comes in as { question: answer ... send_by: full_name }. This strips out the questions
     const questions = Object.keys(submission).filter(
@@ -110,6 +109,19 @@ router.post("/sendReport", slackVerification, async (req, res) => {
       //immediately respond with an empty 200 response to let slack know command was received
       res.send("");
 
+      report_Id = Number(report_Id);
+      console.log(userId);
+      const user = await Users.findById(userId);
+      console.log("user", user);
+      const changesToUser = {
+        ...user,
+        responsesMade: JSON.stringify([
+          ...JSON.parse(user.responsesMade),
+          report_Id
+        ])
+      };
+
+      await Users.update(userId, changesToUser);
       //send confirmation of submission back to user and channel
       confirmation.sendConfirmation(
         user.id,
@@ -133,9 +145,10 @@ router.post("/sendReport", slackVerification, async (req, res) => {
       //not sure we need this
       res.status(200);
     } catch (error) {
-      res.status(500).json({
-        message: error.message
-      });
+      // res.status(500).json({
+      //   message: error.message
+      // });
+      console.log(error.message);
       throw new Error(error);
     }
   }
@@ -143,8 +156,6 @@ router.post("/sendReport", slackVerification, async (req, res) => {
 
 // open the dialog by calling dialogs.open method and sending the payload
 const openDialog = async (payload, real_name, value, channel, elements) => {
-  console.log("value", value);
-  console.log("elements", elements);
   // value.id is the id of the report
   const dialogData = {
     token: process.env.SLACK_ACCESS_TOKEN,
@@ -153,7 +164,7 @@ const openDialog = async (payload, real_name, value, channel, elements) => {
       title: value.reportName,
       callback_id: "report",
       submit_label: "submit",
-      state: `${value.id} ${channel}`,
+      state: `${value.id} ${channel} ${value.users[0].id}`,
       elements: [
         ...elements,
         {
