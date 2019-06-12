@@ -3,18 +3,18 @@ const Reports = require("../models/Reports");
 const Responses = require("../models/Responses");
 const { adminValidation } = require("../middleware/reports");
 const Users = require("../models/Users");
-router.get("/submissionRatePerMember/:reportId", async (req, res) => {
+const {
+  getHistoricalSubmissionRate,
+  getHistoricalSubmissionRateByReport
+} = require("../helpers/submissionRates");
+// Get the historical submission rate of a team by teamId
+router.get("/submissionRate", async (req, res) => {
   try {
     const { teamId } = req.decodedJwt;
-    const { reportId } = req.params;
-    const responses = await Responses.findSubmissionRatePerMemberBy(
-      reportId,
-      teamId
-    );
-    const members = await Users.findMembers(teamId);
-    res.json(responses);
+    const rate = await getHistoricalSubmissionRate(teamId);
+    res.status(200).json({ historicalSubmissionRate: rate });
   } catch (err) {
-    console.log(err);
+    res.status(500).json(err.message);
   }
 });
 // This route returns the submission rate of a given report
@@ -22,13 +22,18 @@ router.get("/submissionRate/:reportId", async (req, res) => {
   try {
     const { teamId } = req.decodedJwt;
     const { reportId } = req.params;
-    const responses = await Responses.findDistinctUserCountBy({ reportId });
-    const members = await Users.findMembersCount(teamId);
+    const rate = await getHistoricalSubmissionRateByReport(teamId, reportId);
 
-    const result = Number.parseFloat(
-      (Number(responses.count) / (Number(members.count) || 1)) * 100
-    ).toFixed(2);
-    res.status(200).json({ submissionRate: result });
+    // const responses = await Responses.findDistinctUserCountBy({ reportId });
+    // const members = await Users.findMembersCount(teamId);
+
+    // const result = Number.parseFloat(
+    //   (Number(responses.count) / (Number(members.count) || 1)) * 100
+    // ).toFixed(2);
+    res.status(200).json({
+      report: reportId,
+      historicalSubmissionRate: rate
+    });
   } catch (err) {
     res.status(500).json({
       message:
@@ -36,6 +41,7 @@ router.get("/submissionRate/:reportId", async (req, res) => {
     });
   }
 });
+
 // This route will return all reports by Team ID
 router.get("/", async (req, res) => {
   const { teamId } = req.decodedJwt;

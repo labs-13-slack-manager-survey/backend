@@ -13,6 +13,8 @@ module.exports = {
   findManager,
   findMembers,
   findMembersCount,
+  getPollsStatsByTeamId,
+  getPollsStatsByTeamIdAndReportId,
   update,
   updateTeamId,
   remove
@@ -26,7 +28,17 @@ async function add(user) {
 
   return findById(id);
 }
-
+function getPollsStatsByTeamIdAndReportId(teamId, reportId) {
+  return db("users as u")
+    .join("reports as r", "u.teamId", "=", "r.teamId")
+    .where({ "u.teamId": teamId, "r.id": reportId })
+    .select("u.id", "u.pollsReceived", "u.responsesMade");
+}
+function getPollsStatsByTeamId(teamId) {
+  return db("users")
+    .where({ teamId })
+    .select("id", "pollsReceived", "responsesMade");
+}
 // Get all users
 function find() {
   return db("users");
