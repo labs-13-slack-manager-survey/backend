@@ -2,8 +2,7 @@ const Reports = require("../models/Reports");
 const getDay = require("date-fns/get_day");
 const getHours = require("date-fns/get_hours");
 const getMinutes = require("date-fns/get_minutes");
-const axios = require("axios");
-
+const { button } = require("./slack");
 const Users = require("../models/Users");
 
 const daysToNumbers = {
@@ -83,9 +82,8 @@ const slackReports = async () => {
         return newReport;
       })
     );
-
     //Call the slack button function
-    await button(stitchedReports);
+    const but = await button(stitchedReports);
 
     return "The function has successfully ran";
   } catch (error) {
@@ -97,113 +95,3 @@ const slackReports = async () => {
 module.exports = {
   slackReports
 };
-
-//Steps for sending out reports
-
-// Array of reports to be sent out
-// Loop over reports array, for each report find all users
-// Slack - For each user send out button
-// Web - for each user send out email
-
-const url = "https://slack.com/api/im.open";
-const postUrl = "https://slack.com/api/chat.postMessage";
-const headers = {
-  "Content-type": "application/json; charset=utf-8",
-  Authorization: `Bearer ${process.env.SLACK_ACCESS_TOKEN}`
-};
-// this component is the message we send to slack with a respond button
-// ex. Hi, Ben :wave: Please fill out your report!    Respond
-//
-const button = async reports => {
-  try {
-    reports.map(async report => {
-      report.users.map(async user => {
-        // combine manager questions with responses to send into slack
-        let managerQuestions = JSON.parse(report.managerQuestions);
-        let managerResponses = JSON.parse(report.managerResponses);
-        const combinedArr = combine(managerQuestions, managerResponses);
-        let result = combinedArr.join("");
-
-        const message = {
-          user: user.slackUserId,
-          include_locale: true,
-          return_im: true
-        };
-        const { data } = await axios.post(url, message, { headers });
-        // used to get the id of the channel
-        const response = {
-          // the response is the message that's being sent to slack.
-          channel: data.channel.id,
-          attachments: [
-            {
-              blocks: [
-                {
-                  type: "section",
-                  text: {
-                    type: "mrkdwn",
-                    text: `Hi ${user.fullName} :wave:`
-                  }
-                },
-                {
-                  type: "section",
-                  text: {
-                    type: "mrkdwn",
-                    text: `Here is your manager's Goal for the week!`
-                  }
-                },
-                {
-                  type: "divider"
-                },
-                {
-                  type: "section",
-                  text: {
-                    type: "mrkdwn",
-                    text: `${result}`
-                  }
-                },
-                {
-                  type: "divider"
-                },
-                {
-                  type: "section",
-                  text: {
-                    type: "mrkdwn",
-                    text: `Please fill out your report: ${report.reportName}`
-                  },
-                  accessory: {
-                    type: "button",
-                    text: {
-                      type: "plain_text",
-                      text: "Respond",
-                      emoji: true
-                    },
-                    value: JSON.stringify(report)
-                  }
-                }
-              ]
-            }
-          ]
-        };
-        const responseMessage = await axios.post(postUrl, response, {
-          headers
-        });
-      });
-    });
-  } catch (err) {
-    //sentry call
-    throw new Error(err);
-  }
-};
-
-function combine(arr1, arr2) {
-  let result = [];
-  for (let i = 0; i < arr1.length; i++) {
-    result.push("*");
-    result.push(arr1[i]);
-    result.push("*");
-    result.push("\n");
-    result.push(arr2[i]);
-    result.push("\n");
-  }
-  return result;
-}
