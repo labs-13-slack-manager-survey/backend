@@ -199,12 +199,14 @@ const button = async reports => {
 function combine(arr1, arr2) {
   let result = [];
   for (let i = 0; i < arr1.length; i++) {
-    result.push("*");
-    result.push(arr1[i]);
-    result.push("*");
-    result.push("\n");
-    result.push(arr2[i]);
-    result.push("\n");
+    if (arr2[i].length) {
+      result.push("*");
+      result.push(arr1[i]);
+      result.push("*");
+      result.push("\n");
+      result.push(arr2[i]);
+      result.push("\n");
+    }
   }
   return result;
 }
