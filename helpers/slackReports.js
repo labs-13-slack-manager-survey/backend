@@ -82,11 +82,8 @@ const slackReports = async () => {
         return newReport;
       })
     );
-    console.log(stitchedReports);
     //Call the slack button function
-    console.log("button not sent");
     const but = await button(stitchedReports);
-    console.log("button sent", but);
 
     return "The function has successfully ran";
   } catch (error) {
