@@ -77,6 +77,7 @@ router.post("/sendReport", slackVerification, async (req, res) => {
     }
   } else if (type === "dialog_submission") {
     const { submission, state } = payload;
+
     const reportId = parseInt(/\w+/.exec(state)[0]);
     let [report_Id, channelId, userId] = payload.state.split(" ");
     // const channelId = channel.id;
@@ -117,14 +118,15 @@ router.post("/sendReport", slackVerification, async (req, res) => {
       );
 
       //create an array of response objects
-      const responseArr = answers.map((answer, index) => ({
+      let responseArr = answers.map((answer, index) => ({
         reportId,
         userId: id,
         question: questions[index],
-        answer: answer,
-        submitted_date: moment().format()
+        // temp fix to send data to the correct field! will need to be changed after the new implementation of menus instead of dialogs
+        answer: Number.isNaN(Number(answer)) ? answer : null,
+        submitted_date: moment().format(),
+        sentimentRange: Number.isNaN(Number(answer)) ? null : Number(answer)
       }));
-
       //insert array of response objects to response table
       await Responses.add(responseArr);
       //not sure we need this
@@ -161,7 +163,6 @@ const openDialog = async (payload, real_name, value, channel, elements) => {
       ]
     })
   };
-
   // open the dialog by calling dialogs.open method and sending the payload
   const promise = await axios.post(
     `${apiUrl}/dialog.open`,

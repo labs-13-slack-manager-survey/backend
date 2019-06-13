@@ -54,7 +54,7 @@ const button = async reports => {
                         type: "mrkdwn",
                         text: `Please fill out your report: ${
                           report.reportName
-                        }`
+                        }\n *On a scale of 1-5*`
                       },
                       accessory: {
                         type: "button",
