@@ -11,9 +11,8 @@ async function getHistoricalSubmissionRate(teamId) {
   // flatten the array so we can count it
   const flattenedRes = [].concat.apply([], responsesMade);
   const flattenedPolls = [].concat.apply([], pollsReceived);
-
   // calculate the rate
-  const rate = (flattenedRes.length / flattenedPolls.length || 1) * 100;
+  const rate = (flattenedRes.length / (flattenedPolls.length || 1)) * 100;
   const result = Number.parseFloat(rate).toFixed(2);
   return Number(result);
 }
@@ -33,7 +32,7 @@ async function getHistoricalSubmissionRateByReport(teamId, reportId) {
   );
   const filteredRes = flattenedRes.filter(res => res === Number(reportId));
   // calculate the rate
-  const rate = (filteredRes.length / filteredPolls.length || 1) * 100;
+  const rate = (filteredRes.length / (filteredPolls.length || 1)) * 100;
 
   const result = Number.parseFloat(rate).toFixed(2);
   return Number(result);
