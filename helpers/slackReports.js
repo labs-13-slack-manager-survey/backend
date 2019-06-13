@@ -111,11 +111,19 @@ const headers = {
   "Content-type": "application/json; charset=utf-8",
   Authorization: `Bearer ${process.env.SLACK_ACCESS_TOKEN}`
 };
-
+// this component is the message we send to slack with a respond button
+// ex. Hi, Ben :wave: Please fill out your report!    Respond
+//
 const button = async reports => {
   try {
     reports.map(async report => {
       report.users.map(async user => {
+        // combine manager questions with responses to send into slack
+        let managerQuestions = JSON.parse(report.managerQuestions);
+        let managerResponses = JSON.parse(report.managerResponses);
+        const combinedArr = combine(managerQuestions, managerResponses);
+        let result = combinedArr.join("");
+
         const message = {
           user: user.slackUserId,
           include_locale: true,
@@ -135,6 +143,26 @@ const button = async reports => {
                     type: "mrkdwn",
                     text: `Hi ${user.fullName} :wave:`
                   }
+                },
+                {
+                  type: "section",
+                  text: {
+                    type: "mrkdwn",
+                    text: `Here is your manager's Goal for the week!`
+                  }
+                },
+                {
+                  type: "divider"
+                },
+                {
+                  type: "section",
+                  text: {
+                    type: "mrkdwn",
+                    text: `${result}`
+                  }
+                },
+                {
+                  type: "divider"
                 },
                 {
                   type: "section",
@@ -166,3 +194,16 @@ const button = async reports => {
     throw new Error(err);
   }
 };
+
+function combine(arr1, arr2) {
+  let result = [];
+  for (let i = 0; i < arr1.length; i++) {
+    result.push("*");
+    result.push(arr1[i]);
+    result.push("*");
+    result.push("\n");
+    result.push(arr2[i]);
+    result.push("\n");
+  }
+  return result;
+}
