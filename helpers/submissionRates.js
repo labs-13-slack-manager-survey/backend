@@ -31,9 +31,8 @@ async function getHistoricalSubmissionRateByReport(teamId, reportId) {
   const filteredPolls = flattenedPolls.filter(
     poll => poll === Number(reportId)
   );
-  console.log(filteredPolls.length);
   const filteredRes = flattenedRes.filter(res => res === Number(reportId));
-  console.log(filteredRes.length);
+  // calculate the rate
   const rate = (filteredRes.length / filteredPolls.length || 1) * 100;
 
   const result = Number.parseFloat(rate).toFixed(2);
