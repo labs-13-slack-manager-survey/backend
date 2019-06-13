@@ -12,7 +12,8 @@ router.get("/submissionRate", async (req, res) => {
   try {
     const { teamId } = req.decodedJwt;
     const rate = await getHistoricalSubmissionRate(teamId);
-    res.status(200).json({ historicalSubmissionRate: rate });
+
+    res.status(200).json(rate);
   } catch (err) {
     res.status(500).json(err.message);
   }
