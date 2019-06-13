@@ -37,7 +37,7 @@ router.get("/channels", authenticate, async (req, res, next) => {
     throw new Error(error);
   }
 });
-
+// slack hits this endpoint when anyone intereacts with the button component we created
 router.post("/sendReport", slackVerification, async (req, res) => {
   const payload = JSON.parse(req.body.payload);
   const { type, user } = payload;
@@ -51,26 +51,14 @@ router.post("/sendReport", slackVerification, async (req, res) => {
   const channel = data.channels.find(
     channel => channel.name.toLowerCase() === "general"
   );
+  // if the person clicks on "respond" button to respond to a report, the following if statement runs
   if (type === "block_actions") {
     const value = JSON.parse(payload.actions[0].value);
-    //pull questions out of the value and put them in an array
-    const questions = JSON.parse(value.questions);
-    const managerQuestions = JSON.parse(value.managerQuestions);
-    const managerResponses = JSON.parse(value.managerResponses);
+    //pull questions out of the value and put them in an array.
 
-    const managerQ =
-      managerResponses &&
-      managerResponses.map(response => {
-        let object = {
-          label: response,
-          type: "text",
-          name: response,
-          value: payload.message.text
-        };
-        return object;
-      });
     //map through questions and create an interactive element for each
     const elements = questions.map(question => {
+      console.log(typeof question);
       let object = {
         label: question,
         type: "textarea",
@@ -79,10 +67,9 @@ router.post("/sendReport", slackVerification, async (req, res) => {
       };
       return object;
     });
-    // const managerQ = value.
+
     try {
       //call openDialog to send modal in DM
-
       openDialog(payload, fullName, value, channel.id, elements);
     } catch (error) {
       res
@@ -120,7 +107,6 @@ router.post("/sendReport", slackVerification, async (req, res) => {
           report_Id
         ])
       };
-
       await Users.update(userId, changesToUser);
       //send confirmation of submission back to user and channel
       confirmation.sendConfirmation(
@@ -156,6 +142,7 @@ router.post("/sendReport", slackVerification, async (req, res) => {
 
 // open the dialog by calling dialogs.open method and sending the payload
 const openDialog = async (payload, real_name, value, channel, elements) => {
+  console.log(elements);
   // value.id is the id of the report
   const dialogData = {
     token: process.env.SLACK_ACCESS_TOKEN,
