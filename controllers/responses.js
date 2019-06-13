@@ -2,6 +2,7 @@ const router = require("express").Router();
 const Responses = require("../models/Responses");
 const Reports = require("../models/Reports");
 const moment = require("moment");
+const Users = require("../models/Users");
 const { endOfDay, startOfDay } = require("date-fns");
 const { searchReports } = require("../helpers/searchReports");
 const {
@@ -119,7 +120,16 @@ router.post("/:reportId", async (req, res) => {
       date: today,
       responses: await searchReports(reportId, today)
     };
-
+    // find the user in the database, then update the responsesMade field if found
+    const user = await Users.findById(subject);
+    const changesToUser = {
+      ...user,
+      responsesMade: JSON.stringify([
+        ...JSON.parse(user.responsesMade),
+        Number(reportId)
+      ])
+    };
+    await Users.update(user.id, changesToUser);
     res.status(201).json([batch]);
   } catch (error) {
     res.status(500).json({
