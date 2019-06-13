@@ -110,9 +110,9 @@ router.post("/sendReport", slackVerification, async (req, res) => {
       res.send("");
 
       report_Id = Number(report_Id);
-      console.log(userId);
+
       const user = await Users.findById(userId);
-      console.log("user", user);
+
       const changesToUser = {
         ...user,
         responsesMade: JSON.stringify([
