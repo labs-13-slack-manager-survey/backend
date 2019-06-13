@@ -55,10 +55,9 @@ router.post("/sendReport", slackVerification, async (req, res) => {
   if (type === "block_actions") {
     const value = JSON.parse(payload.actions[0].value);
     //pull questions out of the value and put them in an array.
-
+    const questions = JSON.parse(value.questions);
     //map through questions and create an interactive element for each
     const elements = questions.map(question => {
-      console.log(typeof question);
       let object = {
         label: question,
         type: "textarea",
@@ -142,7 +141,6 @@ router.post("/sendReport", slackVerification, async (req, res) => {
 
 // open the dialog by calling dialogs.open method and sending the payload
 const openDialog = async (payload, real_name, value, channel, elements) => {
-  console.log(elements);
   // value.id is the id of the report
   const dialogData = {
     token: process.env.SLACK_ACCESS_TOKEN,
