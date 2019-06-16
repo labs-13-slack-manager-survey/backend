@@ -30,7 +30,7 @@ exports.up = function(knex) {
 
     tbl.integer("sentimentRange");
 
-    tbl.boolean("isComplete")
+    tbl.boolean("isComplete").defaultTo(false)
   });
 };
 
