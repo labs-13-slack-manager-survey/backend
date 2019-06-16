@@ -25,8 +25,12 @@ exports.up = function(knex) {
     tbl.text("answer");
 
     tbl.datetime("submitted_date", { precision: 2 }).notNullable();
+
     tbl.text("comments");
+
     tbl.integer("sentimentRange");
+
+    tbl.boolean("isComplete")
   });
 };
 
