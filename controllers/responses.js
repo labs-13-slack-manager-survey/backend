@@ -9,7 +9,10 @@ const {
   filterByUserAndDate,
   filterByDate,
   filterUserLastSevenDays,
-  filterSevenDays
+  filterSevenDays,
+  filterThirtyDays,
+  filterTwoWeeks,
+  filterOneDay
 } = require("../helpers/filters");
 // returns the average sentiment of a report
 router.get("/sentimentAvg/:reportId", async (req, res) => {
@@ -56,7 +59,6 @@ router.get("/", async (req, res) => {
 });
 
 // This route will insert responses in the database with a reference to the report id
-
 router.post("/:reportId", async (req, res) => {
   const { reportId } = req.params;
   const { subject, teamId } = req.decodedJwt;
@@ -148,6 +150,60 @@ router.get("/:reportId", async (req, res) => {
     // If teamId and reportId don't match with resource error will be thrown
     await Reports.findByIdAndTeamId(reportId, teamId);
     const responses = await filterSevenDays(reportId);
+    res.status(200).json(responses);
+  } catch (err) {
+    res.status(500).json({
+      message: err.message
+    });
+    throw new Error(err);
+  }
+});
+
+// Gets all responses by report for the last 30 days
+router.get("/:reportId", async (req, res) => {
+  const { reportId } = req.params;
+  const { teamId } = req.decodedJwt;
+  try {
+    // Run a check in the Reports model to verify that the reportId and TeamId are a match
+    // If teamId and reportId don't match with resource error will be thrown
+    await Reports.findByIdAndTeamId(reportId, teamId);
+    const responses = await filterThirtyDays(reportId);
+    res.status(200).json(responses);
+  } catch (err) {
+    res.status(500).json({
+      message: err.message
+    });
+    throw new Error(err);
+  }
+});
+
+// Gets all responses by report for the last 30 days
+router.get("/:reportId", async (req, res) => {
+  const { reportId } = req.params;
+  const { teamId } = req.decodedJwt;
+  try {
+    // Run a check in the Reports model to verify that the reportId and TeamId are a match
+    // If teamId and reportId don't match with resource error will be thrown
+    await Reports.findByIdAndTeamId(reportId, teamId);
+    const responses = await filterTwoWeeks(reportId);
+    res.status(200).json(responses);
+  } catch (err) {
+    res.status(500).json({
+      message: err.message
+    });
+    throw new Error(err);
+  }
+});
+
+// Gets all responses by report for the day
+router.get("/:reportId", async (req, res) => {
+  const { reportId } = req.params;
+  const { teamId } = req.decodedJwt;
+  try {
+    // Run a check in the Reports model to verify that the reportId and TeamId are a match
+    // If teamId and reportId don't match with resource error will be thrown
+    await Reports.findByIdAndTeamId(reportId, teamId);
+    const responses = await filterOneDay(reportId);
     res.status(200).json(responses);
   } catch (err) {
     res.status(500).json({
