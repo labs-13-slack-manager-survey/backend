@@ -6,6 +6,7 @@ module.exports = {
   findBy,
   findById,
   findDistinctUserCountBy,
+  findManagerFeedbackByReportIdAndUserId,
   // findSubmissionRatePerMemberBy,
   findByAndJoin,
   findTodays,
@@ -47,20 +48,7 @@ function findDistinctUserCountBy(filter) {
     .countDistinct("userId")
     .first();
 }
-// Get submission rate of a member
-// async function findSubmissionRatePerMemberBy(reportId, teamId) {
-//   // get all responses of a member
-//   const responses = await db("responses")
-//     .where({ reportId })
-//     .select("id", "userId", "submitted_date");
-//   // get all members of a team
-//   const members = await db("users").where({ teamId });
-//   responses.map(response=>{
 
-//   })
-//   // calculate submission rate
-//   return result;
-// }
 // Get submitted report by user and by date
 function findTodays(user, reportId, startday, endDay) {
   return db("responses")
@@ -76,7 +64,12 @@ function findById(id) {
     .where({ id })
     .first();
 }
-
+// Get manager feedback by id
+function findManagerFeedbackByReportIdAndUserId(reportId, userId) {
+  return db("responses")
+    .where({ reportId, userId })
+    .select("managerQuestions", "managerResponses");
+}
 // This allows us to search by reportId join with users table and return user's name and profile picture.
 function findByAndJoin(reportId, startday, endDay) {
   return db("responses")
