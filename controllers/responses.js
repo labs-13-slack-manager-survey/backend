@@ -194,7 +194,6 @@ router.get("/:reportId/twoWeeks", async (req, res) => {
     throw new Error(err);
   }
 });
-
 // Gets all responses by report for the day
 router.get("/:reportId/day", async (req, res) => {
   const { reportId } = req.params;
@@ -212,7 +211,6 @@ router.get("/:reportId/day", async (req, res) => {
     throw new Error(err);
   }
 });
-
 router.post("/:reportId/filter", async (req, res) => {
   const { reportId } = req.params;
   const { teamId } = req.decodedJwt;
