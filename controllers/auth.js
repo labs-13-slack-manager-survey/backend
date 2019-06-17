@@ -62,7 +62,7 @@ router.post("/firebase", async ({ body }, res) => {
     throw new Error(error);
   }
 });
-
+console.log("TESTING")
 router.get("/slack/", authenticate, async (req, res, next) => {
   const { subject, roles, teamId } = req.decodedJwt;
   const payload = qs.stringify({
