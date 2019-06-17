@@ -14,6 +14,53 @@ const {
   filterTwoWeeks,
   filterOneDay
 } = require("../helpers/filters");
+router.get("/managerQuestions/:reportId", async (req, res) => {
+  try {
+    const { reportId } = req.params;
+    const { subject } = req.decodedJwt;
+    // Find the manager questions associated with the report Id
+    const managerFeedback = await Responses.findManagerFeedbackByReportIdAndUserId(
+      reportId,
+      subject
+    );
+    res.status(200).json(managerFeedback);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+    throw new Error(err);
+  }
+});
+router.post("/managerQuestions/:reportId", async (req, res) => {
+  try {
+    const { reportId } = req.params;
+    const { subject, teamId } = req.decodedJwt;
+    const { managerQuestions, managerResponses } = req.body;
+    // Query the db to verify that this team member is verified to insert a
+    // resouce for this report.
+    const resource = await Reports.findByIdAndTeamId(reportId, teamId);
+    if (resource) {
+      const managerFeedback = {
+        reportId,
+        userId: subject,
+        managerQuestions: managerQuestions,
+        managerResponses: managerResponses,
+        submitted_date: moment().format()
+      };
+      // add manager feedback to the responses table
+      await Responses.add(managerFeedback);
+      const today = new Date();
+      const batch = {
+        date: today,
+        managerResponses: await searchReports(reportId, today)
+      };
+      res.status(201).json([batch]);
+    } else {
+      res.status(404).json({ message: "report does not exist" });
+    }
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+    throw new Error(err);
+  }
+});
 // returns the average sentiment of a report
 router.get("/sentimentAvg/:reportId", async (req, res) => {
   try {
