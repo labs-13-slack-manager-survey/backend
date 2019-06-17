@@ -47,12 +47,11 @@ router.post("/managerQuestions/:reportId", async (req, res) => {
       };
       // add manager feedback to the responses table
       await Responses.add(managerFeedback);
-      const today = new Date();
-      const batch = {
-        date: today,
-        managerResponses: await searchReports(reportId, today)
-      };
-      res.status(201).json([batch]);
+      const managerFeedbackRes = await Responses.findManagerFeedbackByReportIdAndUserId(
+        reportId,
+        subject
+      );
+      res.status(201).json(managerFeedbackRes);
     } else {
       res.status(404).json({ message: "report does not exist" });
     }
@@ -160,7 +159,8 @@ router.post("/:reportId", async (req, res) => {
       question: body.question,
       answer: body.response,
       submitted_date: moment().format(),
-      sentimentRange: body.sentimentRange
+      sentimentRange: body.sentimentRange,
+      sentimentQuestions: body.sentimentQuestions
     }));
 
     await Responses.add(responseArr);
