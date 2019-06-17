@@ -31,6 +31,10 @@ exports.up = function(knex) {
     tbl.integer("sentimentRange");
 
     tbl.boolean("isComplete").defaultTo(false).notNullable();
+
+    tbl.text("managerQuestions").defaultTo("[]");
+    
+    tbl.text("managerResponses").defaultTo("[]");
   });
 };
 
