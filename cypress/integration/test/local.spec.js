@@ -10,8 +10,24 @@ describe('Login', () => {
         cy.get('button').click({ multiple: true , force: true})     
     })
     it('Can Log In', () =>{
-        cy.url().should('include', '/login')
+        cy.url().should('include', '/login').wait(10000)
         cy.get('button').contains('Google').click()
         // cy.go('forward')
+    })
+})
+
+describe('Dashboard', ()=> {
+    it('Await Tour', ()=>{
+        cy.wait(1500)
+    })
+    it('Tour Loads', ()=>{
+        cy.contains('Next')
+    })
+    it('Tour Functional', ()=>{
+        cy.contains('Next').click()
+        cy.wait(1000).contains('Next').click()
+        cy.wait(1000).contains('Next').click()
+        cy.wait(1000).contains('Next').click()
+        cy.wait(1000).contains('Done').click()
     })
 })
