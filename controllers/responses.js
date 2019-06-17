@@ -160,7 +160,7 @@ router.get("/:reportId", async (req, res) => {
 });
 
 // Gets all responses by report for the last 30 days
-router.get("/:reportId", async (req, res) => {
+router.get("/:reportId/month", async (req, res) => {
   const { reportId } = req.params;
   const { teamId } = req.decodedJwt;
   try {
@@ -177,8 +177,8 @@ router.get("/:reportId", async (req, res) => {
   }
 });
 
-// Gets all responses by report for the last 30 days
-router.get("/:reportId", async (req, res) => {
+// Gets all responses by report for the last 14 days
+router.get("/:reportId/twoWeeks", async (req, res) => {
   const { reportId } = req.params;
   const { teamId } = req.decodedJwt;
   try {
@@ -196,7 +196,7 @@ router.get("/:reportId", async (req, res) => {
 });
 
 // Gets all responses by report for the day
-router.get("/:reportId", async (req, res) => {
+router.get("/:reportId/day", async (req, res) => {
   const { reportId } = req.params;
   const { teamId } = req.decodedJwt;
   try {
