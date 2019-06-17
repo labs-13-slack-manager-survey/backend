@@ -7,6 +7,7 @@ const {
   getHistoricalSubmissionRate,
   getHistoricalSubmissionRateByReport
 } = require("../helpers/submissionRates");
+
 // Get the historical submission rate of a team by teamId
 router.get("/submissionRate", async (req, res) => {
   try {
@@ -80,8 +81,10 @@ router.get("/:reportId", async (req, res) => {
         report: {
           ...report,
           managerQuestions: JSON.parse(report.managerQuestions),
+          managerResponses: JSON.parse(report.managerResponses),
           questions: JSON.parse(report.questions),
-          schedule: JSON.parse(report.schedule)
+          schedule: JSON.parse(report.schedule),
+          sentimentQuestions: JSON.parse(report.sentimentQuestions)
         }
       });
     } else {
