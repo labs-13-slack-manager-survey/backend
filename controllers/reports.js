@@ -7,6 +7,7 @@ const {
   getHistoricalSubmissionRate,
   getHistoricalSubmissionRateByReport
 } = require("../helpers/submissionRates");
+
 // Get the historical submission rate of a team by teamId
 router.get("/submissionRate", async (req, res) => {
   try {
@@ -18,6 +19,7 @@ router.get("/submissionRate", async (req, res) => {
     res.status(500).json(err.message);
   }
 });
+
 // This route returns the submission rate of a given report
 router.get("/submissionRate/:reportId", async (req, res) => {
   try {
@@ -73,6 +75,7 @@ router.get("/:reportId", async (req, res) => {
   const { teamId } = req.decodedJwt;
   try {
     const report = await Reports.findByIdAndTeamId(reportId, teamId);
+    console.log(report);
     if (report) {
       const message = "The reports were found in the database.";
       res.status(200).json({
@@ -107,9 +110,9 @@ router.post("/", adminValidation, async (req, res) => {
   const newReport = { ...req.body, teamId };
 
   try {
-    await Reports.add(newReport);
-    const reports = await Reports.findByTeam(teamId);
-    res.status(201).json(reports);
+    const report = await Reports.add(newReport);
+    // return the added report
+    res.status(201).json(report);
   } catch (error) {
     res.status(500).json({
       message: "Sorry, something went wrong while adding the report"
