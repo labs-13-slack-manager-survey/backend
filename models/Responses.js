@@ -7,12 +7,20 @@ module.exports = {
   findById,
   findDistinctUserCountBy,
   findManagerFeedbackByReportIdAndUserId,
+  update,
   // findSubmissionRatePerMemberBy,
   findByAndJoin,
   findTodays,
   findByUserAndJoin,
   findAvgSentiment
 };
+// update a response
+async function update(id, changes) {
+  await db("responses")
+    .where({ id })
+    .update(changes);
+  return findById(id);
+}
 // find average sentiment of a team's response by the teamId and reportId
 async function findAvgSentiment(teamId, reportId) {
   return await db("reports as rep")
