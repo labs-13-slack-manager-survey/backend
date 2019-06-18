@@ -47,11 +47,11 @@ router.post("/managerQuestions/:reportId", async (req, res) => {
       };
       // add manager feedback to the responses table
       await Responses.add(managerFeedback);
-      const managerFeedbackRes = await Responses.findManagerFeedbackByReportIdAndUserId(
+      const historicalManagerFeedback = await Responses.findManagerFeedbackByReportIdAndUserId(
         reportId,
         subject
       );
-      res.status(201).json(managerFeedbackRes);
+      res.status(201).json(historicalManagerFeedback);
     } else {
       res.status(404).json({ message: "report does not exist" });
     }
@@ -291,5 +291,3 @@ router.post("/:reportId/filter", async (req, res) => {
 });
 
 module.exports = router;
-
-
