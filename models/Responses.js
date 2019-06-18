@@ -66,9 +66,7 @@ function findById(id) {
 }
 // Get manager feedback by id
 function findManagerFeedbackByReportIdAndUserId(reportId, userId) {
-  return db("responses")
-    .where({ reportId, userId })
-    .select("managerQuestions", "managerResponses");
+  return db("responses").where({ reportId, userId });
 }
 // This allows us to search by reportId join with users table and return user's name and profile picture.
 function findByAndJoin(reportId, startday, endDay) {
