@@ -38,13 +38,14 @@ router.post("/managerQuestions/:reportId", async (req, res) => {
     const { managerQuestions, managerResponses } = req.body;
     // Query the db to verify that this team member is verified to insert a
     // resouce for this report.
+    console.log(JSON.stringify(managerQuestions));
     const resource = await Reports.findByIdAndTeamId(reportId, teamId);
     if (resource) {
       const managerFeedback = {
         reportId,
         userId: subject,
-        managerQuestions: managerQuestions,
-        managerResponses: managerResponses,
+        managerQuestions: JSON.stringify(managerQuestions),
+        managerResponses: JSON.stringify(managerResponses),
         submitted_date: moment().format()
       };
       // add manager feedback to the responses table
@@ -134,7 +135,6 @@ router.post("/:reportId", async (req, res) => {
     // Query the db to verify that this team member is verified to insert a
     // resouce for this report.
     const resource = await Reports.findByIdAndTeamId(reportId, teamId);
-    console.log(resource);
     // Query db to verify that team member has not already submitted a response today.
     const today = new Date();
     const start = startOfDay(today);
@@ -161,7 +161,6 @@ router.post("/:reportId", async (req, res) => {
 
     for (let i = 0; i < req.body.length; i++) {
       const question = req.body[i].question;
-      console.log("test", req.body[0]);
       const response = resource.isSentiment
         ? true
         : req.body[i].response.trim();
