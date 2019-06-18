@@ -14,6 +14,7 @@ const {
   filterTwoWeeks,
   filterOneDay
 } = require("../helpers/filters");
+// get all the manager feedback in a report
 router.get("/managerQuestions/:reportId", async (req, res) => {
   try {
     const { reportId } = req.params;
@@ -29,6 +30,7 @@ router.get("/managerQuestions/:reportId", async (req, res) => {
     throw new Error(err);
   }
 });
+// post a new manager feedback to the responses table
 router.post("/managerQuestions/:reportId", async (req, res) => {
   try {
     const { reportId } = req.params;
@@ -60,6 +62,25 @@ router.post("/managerQuestions/:reportId", async (req, res) => {
     throw new Error(err);
   }
 });
+// update a manager feedback in the responses table
+router.put("/managerQuestions/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { managerQuestions, managerResponses } = req.body;
+    const response = await Responses.findById(id);
+    const changes = {
+      ...response,
+      managerQuestions: managerQuestions,
+      managerResponses: managerResponses
+    };
+    const update = await Responses.update(id, changes);
+    res.status(200).json({ message: "update success!", update });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+    throw new Error(err);
+  }
+});
+
 // returns the average sentiment of a report
 router.get("/sentimentAvg/:reportId", async (req, res) => {
   try {
@@ -78,6 +99,7 @@ router.get("/sentimentAvg/:reportId", async (req, res) => {
     throw new Error(err);
   }
 });
+
 // get a user's responses if they've completed a report today
 router.get("/", async (req, res) => {
   const { userId } = req.decodedJwt;
