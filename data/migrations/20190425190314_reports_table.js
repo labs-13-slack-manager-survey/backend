@@ -29,7 +29,6 @@ exports.up = function(knex) {
     tbl.text("managerQuestions");
 
     tbl.text("managerResponses");
-    tbl.text("sentimentQuestions").defaultTo("[]");
   });
 };
 

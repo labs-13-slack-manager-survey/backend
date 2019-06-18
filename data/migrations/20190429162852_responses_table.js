@@ -31,10 +31,13 @@ exports.up = function(knex) {
     tbl.integer("sentimentRange");
 
     tbl.boolean("isComplete").defaultTo(false);
+
     tbl.text("managerQuestions").defaultTo("[]");
+
     tbl.text("managerResponses").defaultTo("[]");
   });
 };
+
 
 exports.down = function(knex) {
   return knex.schema.dropTableIfExists("responses");
