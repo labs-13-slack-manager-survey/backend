@@ -112,6 +112,7 @@ router.post("/:reportId", async (req, res) => {
     // Query the db to verify that this team member is verified to insert a
     // resouce for this report.
     const resource = await Reports.findByIdAndTeamId(reportId, teamId);
+    console.log(resource);
     // Query db to verify that team member has not already submitted a response today.
     const today = new Date();
     const start = startOfDay(today);
@@ -124,9 +125,9 @@ router.post("/:reportId", async (req, res) => {
     );
 
     // If user has already submitted a report throw an error.
-    if (todaysResponses.length > 0) {
-      throw new Error("You've already submitted your report for today.");
-    }
+    // if (todaysResponses.length > 0) {
+    //   throw new Error("You've already submitted your report for today.");
+    // }
 
     // Parse the stringified questions and map to array
     const resourceQuestions = JSON.parse(resource.questions);
@@ -138,11 +139,10 @@ router.post("/:reportId", async (req, res) => {
 
     for (let i = 0; i < req.body.length; i++) {
       const question = req.body[i].question;
-
+      console.log("test", req.body[0]);
       const response = resource.isSentiment
         ? true
         : req.body[i].response.trim();
-
       if (response.length < 1) {
         throw new Error("This report requires all responses to be filled in.");
       }
