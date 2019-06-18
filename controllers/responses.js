@@ -14,6 +14,52 @@ const {
   filterTwoWeeks,
   filterOneDay
 } = require("../helpers/filters");
+router.get("/managerQuestions/:reportId", async (req, res) => {
+  try {
+    const { reportId } = req.params;
+    const { subject } = req.decodedJwt;
+    // Find the manager questions associated with the report Id
+    const managerFeedback = await Responses.findManagerFeedbackByReportIdAndUserId(
+      reportId,
+      subject
+    );
+    res.status(200).json(managerFeedback);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+    throw new Error(err);
+  }
+});
+router.post("/managerQuestions/:reportId", async (req, res) => {
+  try {
+    const { reportId } = req.params;
+    const { subject, teamId } = req.decodedJwt;
+    const { managerQuestions, managerResponses } = req.body;
+    // Query the db to verify that this team member is verified to insert a
+    // resouce for this report.
+    const resource = await Reports.findByIdAndTeamId(reportId, teamId);
+    if (resource) {
+      const managerFeedback = {
+        reportId,
+        userId: subject,
+        managerQuestions: managerQuestions,
+        managerResponses: managerResponses,
+        submitted_date: moment().format()
+      };
+      // add manager feedback to the responses table
+      await Responses.add(managerFeedback);
+      const historicalManagerFeedback = await Responses.findManagerFeedbackByReportIdAndUserId(
+        reportId,
+        subject
+      );
+      res.status(201).json(historicalManagerFeedback);
+    } else {
+      res.status(404).json({ message: "report does not exist" });
+    }
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+    throw new Error(err);
+  }
+});
 // returns the average sentiment of a report
 router.get("/sentimentAvg/:reportId", async (req, res) => {
   try {
@@ -66,6 +112,7 @@ router.post("/:reportId", async (req, res) => {
     // Query the db to verify that this team member is verified to insert a
     // resouce for this report.
     const resource = await Reports.findByIdAndTeamId(reportId, teamId);
+    console.log(resource);
     // Query db to verify that team member has not already submitted a response today.
     const today = new Date();
     const start = startOfDay(today);
@@ -78,9 +125,9 @@ router.post("/:reportId", async (req, res) => {
     );
 
     // If user has already submitted a report throw an error.
-    if (todaysResponses.length > 0) {
-      throw new Error("You've already submitted your report for today.");
-    }
+    // if (todaysResponses.length > 0) {
+    //   throw new Error("You've already submitted your report for today.");
+    // }
 
     // Parse the stringified questions and map to array
     const resourceQuestions = JSON.parse(resource.questions);
@@ -92,11 +139,10 @@ router.post("/:reportId", async (req, res) => {
 
     for (let i = 0; i < req.body.length; i++) {
       const question = req.body[i].question;
-
+      console.log("test", req.body[0]);
       const response = resource.isSentiment
         ? true
         : req.body[i].response.trim();
-
       if (response.length < 1) {
         throw new Error("This report requires all responses to be filled in.");
       }
@@ -113,7 +159,8 @@ router.post("/:reportId", async (req, res) => {
       question: body.question,
       answer: body.response,
       submitted_date: moment().format(),
-      sentimentRange: body.sentimentRange
+      sentimentRange: body.sentimentRange,
+      sentimentQuestions: body.sentimentQuestions
     }));
 
     await Responses.add(responseArr);
@@ -244,5 +291,3 @@ router.post("/:reportId/filter", async (req, res) => {
 });
 
 module.exports = router;
-
-

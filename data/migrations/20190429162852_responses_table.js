@@ -20,7 +20,7 @@ exports.up = function(knex) {
       .onDelete("CASCADE")
       .onUpdate("CASCADE");
 
-    tbl.text("question").notNullable();
+    tbl.text("question");
 
     tbl.text("answer");
 
