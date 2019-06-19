@@ -54,8 +54,7 @@ router.post("/managerQuestions/:reportId", async (req, res) => {
         userId: subject,
         managerQuestions: JSON.stringify(managerQuestions),
         managerResponses: JSON.stringify(managerResponses),
-        submitted_date: moment().format(),
-        managerId: subject
+        submitted_date: moment().format()
       };
       // add manager feedback to the responses table
       await Responses.add(managerFeedback);
