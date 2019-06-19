@@ -18,12 +18,21 @@ const {
 router.get("/managerQuestions/:reportId", async (req, res) => {
   try {
     const { reportId } = req.params;
-    const { subject } = req.decodedJwt;
+    const { subject, roles, teamId } = req.decodedJwt;
     // Find the manager questions associated with the report Id
-    const managerFeedback = await Responses.findManagerFeedbackByReportIdAndUserId(
-      reportId,
-      subject
-    );
+    let managerFeedback = [];
+    if (roles === "admin") {
+      managerFeedback = await Responses.findManagerFeedbackByReportIdAndUserId(
+        reportId,
+        subject
+      );
+    } else {
+      let { id } = await Users.findManager(teamId);
+      managerFeedback = await Responses.findManagerFeedbackByReportIdAndUserId(
+        reportId,
+        id
+      );
+    }
     res.status(200).json(managerFeedback);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -38,7 +47,6 @@ router.post("/managerQuestions/:reportId", async (req, res) => {
     const { managerQuestions, managerResponses } = req.body;
     // Query the db to verify that this team member is verified to insert a
     // resouce for this report.
-    console.log(JSON.stringify(managerQuestions));
     const resource = await Reports.findByIdAndTeamId(reportId, teamId);
     if (resource) {
       const managerFeedback = {
@@ -46,7 +54,8 @@ router.post("/managerQuestions/:reportId", async (req, res) => {
         userId: subject,
         managerQuestions: JSON.stringify(managerQuestions),
         managerResponses: JSON.stringify(managerResponses),
-        submitted_date: moment().format()
+        submitted_date: moment().format(),
+        managerId: subject
       };
       // add manager feedback to the responses table
       await Responses.add(managerFeedback);
@@ -132,6 +141,8 @@ router.post("/:reportId", async (req, res) => {
   const { reportId } = req.params;
   const { subject, teamId } = req.decodedJwt;
   try {
+    console.log("teeeeeeeeest");
+    console.log("******", req.body);
     // Query the db to verify that this team member is verified to insert a
     // resouce for this report.
     const resource = await Reports.findByIdAndTeamId(reportId, teamId);
@@ -147,9 +158,9 @@ router.post("/:reportId", async (req, res) => {
     );
 
     // If user has already submitted a report throw an error.
-    // if (todaysResponses.length > 0) {
-    //   throw new Error("You've already submitted your report for today.");
-    // }
+    if (todaysResponses.length > 0) {
+      throw new Error("You've already submitted your report for today.");
+    }
 
     // Parse the stringified questions and map to array
     const resourceQuestions = JSON.parse(resource.questions);
