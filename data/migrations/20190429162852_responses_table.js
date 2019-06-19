@@ -32,6 +32,8 @@ exports.up = function(knex) {
 
     tbl.boolean("isComplete").defaultTo(false);
 
+    tbl.text("sentimentQuestions").defaultTo("[]");
+
     tbl.text("managerQuestions").defaultTo("[]");
 
     tbl.text("managerResponses").defaultTo("[]");
