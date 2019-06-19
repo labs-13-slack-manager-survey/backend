@@ -140,8 +140,7 @@ router.post("/:reportId", async (req, res) => {
   const { reportId } = req.params;
   const { subject, teamId } = req.decodedJwt;
   try {
-    console.log("teeeeeeeeest");
-    console.log("******", req.body);
+    const { questions, sentimentQuestions } = req.body;
     // Query the db to verify that this team member is verified to insert a
     // resouce for this report.
     const resource = await Reports.findByIdAndTeamId(reportId, teamId);
@@ -169,32 +168,39 @@ router.post("/:reportId", async (req, res) => {
     // to alter them, throw an error, also check that each response has been
     // filled in.
 
-    for (let i = 0; i < req.body.length; i++) {
-      const question = req.body[i].question;
-      const response = resource.isSentiment
-        ? true
-        : req.body[i].response.trim();
-      if (response.length < 1) {
-        throw new Error("This report requires all responses to be filled in.");
-      }
+    // not sure if this code is even needed
+    // for (let i = 0; i < req.body.questions.length; i++) {
+    //   const question = req.body.questions[i];
+    //   const response = resource.isSentiment
+    //     ? true
+    //     : req.body.questions[i].response.trim();
+    //   if (response.length < 1) {
+    //     throw new Error("This report requires all responses to be filled in.");
+    //   }
 
-      if (!resourceQuestions.includes(question)) {
-        throw new Error("Incoming questions failed verification check");
-      }
-    }
+    //   if (!resourceQuestions.includes(question)) {
+    //     throw new Error("Incoming questions failed verification check");
+    //   }
+    // }
     // All questions have passed verification and can now be inserted to the model
-
-    const responseArr = req.body.map(body => ({
+    const now = moment().format();
+    const responseArr = questions.map(question => ({
       reportId,
       userId: subject,
-      question: body.question,
-      answer: body.response,
-      submitted_date: moment().format(),
-      sentimentRange: body.sentimentRange,
-      sentimentQuestions: body.sentimentQuestions
+      question: question.question,
+      answer: question.response,
+      submitted_date: now
     }));
-
+    const sentimentResArr = sentimentQuestions.map(question => ({
+      reportId,
+      userId: subject,
+      submitted_date: now,
+      sentimentQuestions: question.question,
+      comments: question.response,
+      sentimentRange: question.sentimentRange
+    }));
     await Responses.add(responseArr);
+    await Responses.add(sentimentResArr);
 
     const batch = {
       date: today,
@@ -210,6 +216,7 @@ router.post("/:reportId", async (req, res) => {
       ])
     };
     await Users.update(user.id, changesToUser);
+    console.log("test", batch);
     res.status(201).json([batch]);
   } catch (error) {
     res.status(500).json({
