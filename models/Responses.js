@@ -87,6 +87,7 @@ function findByAndJoin(reportId, startday, endDay) {
     .where("reportId", reportId)
     .where("submitted_date", ">=", startday)
     .where("submitted_date", "<=", endDay)
+    .whereNot({ question: null, answer: null })
     .join("users", "responses.userId", "users.id")
     .select(
       "users.id as userId",
