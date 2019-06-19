@@ -7,6 +7,7 @@ module.exports = {
   findById,
   findDistinctUserCountBy,
   findManagerFeedbackByReportIdAndUserId,
+  findManagerFeedbackByReportIdAndUserIdAsMembers,
   update,
   // findSubmissionRatePerMemberBy,
   findByAndJoin,
@@ -75,6 +76,10 @@ function findById(id) {
 // Get manager feedback by id
 function findManagerFeedbackByReportIdAndUserId(reportId, userId) {
   return db("responses").where({ reportId, userId });
+}
+// Get manager feedback by id
+function findManagerFeedbackByReportIdAndUserIdAsMembers(reportId, userId) {
+  return db("responses").where({ reportId, managerId: userId, userId });
 }
 // This allows us to search by reportId join with users table and return user's name and profile picture.
 function findByAndJoin(reportId, startday, endDay) {
