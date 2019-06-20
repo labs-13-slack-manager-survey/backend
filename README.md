@@ -77,7 +77,7 @@ The [Slack API](https://api.slack.com/start/building) allows for users to reciev
 
 # SUMMARY TABLE OF API ENDPOINTS
 
-Aside from `auth/firebase` all requests must be made with a header that includes the JWT returned from the POST request. The header serves several purposes, among them authentication and request specificity (many requests read the user's ID from decoded token). Additionally, requests made to routes protected by the admin validation middleware must include a token from a user whose role is `admin`. Request headers must be formatted as such:
+Aside from `auth/firebase` all requests must be made with a header that includes the JWT returned from the POST request. The header serves several purposes, among them authentication and request specificity (many requests read the user's ID from decoded token). Additionally, requests made to routes protected by the manager validation middleware must include a token from a user whose role is `admin`. Request headers must be formatted as such:
 
 | name            | type   | required | description              |
 | --------------- | ------ | -------- | ------------------------ |
@@ -108,25 +108,35 @@ Aside from `auth/firebase` all requests must be made with a header that includes
 | GET    | `/joinCode/:joinCode` | authenticated users      | Finds the team ID associated with the join code passed in request parameters and updates the team ID field on the user record associated with the user ID decoded from the Auth token in header. |
 | PUT    | `/users` | authenticated users      | Decodes User ID from Auth token in header and updates the User record associated with that ID with the object contained in the request body. |
 | PUT    | `/users/:userId` | admin-authenticated users      | Allows for admin users to edit the records of a given user specified by the request parameters by passing a partial or whole user object in the request body. |
+| DELETE    | `/users` | authenticated users      | Allows managers to delete users that are no longer in a group channel |
 
 #### Report Routes
 | Method | Endpoint                | Access Control | Description                                  |
 | ------ | ----------------------- | -------------- | -------------------------------------------- |
 | GET    | `/reports` | authenticated users      | Decodes Auth token in header, returns an object of reports associated with teamId of user requesting.|
 | GET    | `/reports/:reportID` | authenticated users      | Returns the report specified in req params, as long as it's associated with the teamId in decoded Auth token in req headers.|
+| GET    | `/reports/submissionRate/:reportId` | authenticated users      | This route returns the submission rate of a given report |
+| GET    | `/reports/submissionRate` | authenticated users      |  Get the historical submission rate of a team by teamId, as long as it's associated with the teamId in decoded Auth token in req headers.|
 | POST    | `/reports` | admin-authenticated users      | Decodes Auth token in header, creates an entry in the Reports table, returns an object of reports associated with teamId of user requesting.|
 | DELETE    | `/reports/:id` | admin-authenticated users      | Deletes a report specified by reportId in req params|
-| PUT    | `reports/:reportId` | admin-authenticated users      | Takes report ID off req params, updates corresponding Report record with req body. Returns an object full of reports by team ID of user requesting.|
+| PUT    | `/reports/:reportId` | admin-authenticated users      | Takes report ID off req params, updates corresponding Report record with req body. Returns an object full of reports by team ID of user requesting.|
+
 
 #### Response Routes
 
 | Method | Endpoint                | Access Control | Description                                  |
 | ------ | ----------------------- | -------------- | -------------------------------------------- |
 | GET    | `/responses` | authenticated users      | Returns a User's responses if they've completed a report today. |
+| GET    | `/response/managerQuestions/:reportId` | authenticated users      | get all the manager feedback in a report,as long as it's associated with the teamId in decoded Auth token in req headers.|
+| GET    | `/responses/sentimentAvg/:reportId` | authenticated users      |returns the average sentiment of a report, as long as it's associated with the teamId in decoded Auth token in req headers.|
+| GET    | `/responses/:reportId` | authenticated users      |Returns all responses by report for the last 7 days|
+| GET    | `/responses/:reportId/month` | authenticated users      | Gets all responses by report for the last 30 days, as long as it's associated with the teamId in decoded Auth token in req headers.|
+| GET    | `/responses/:reportId/twoWeeks` | authenticated users      | Gets all responses by report for the last 14 days, as long as it's associated with the teamId in decoded Auth token in req headers.|
+| GET    | `/responses/:reportId/day` | authenticated users      | Gets all responses by report for the day, as long as it's associated with the teamId in decoded Auth token in req headers.|
 | POST    | `/responses/:reportId/filter` | authenticated users      | Returns responses for a given report (in params) on a given date for a given user (passed in request body) |
-| GET    | `/responses/:reportId` | authenticated users      | Returns all responses from the last 7 days for a given report specified in the request parameters. |
-| GET    | `/responses/sentimentAvg/:reportId` | authenticated users      | Returns an average of the sentiment responses from the last 7 days for a given report specified in the request parameters and `teamId` the token |
-| POST    | `/responses/:reportId` | authenticated users      | Decodes the user ID from the token in the request header, inserts the responses passed in the request body with the report ID token inserted as a FK. |
+| POST    | `/responses/:reportId` | authenticated users      | This route will insert responses in the database with a reference to the report id |
+| POST    | `/responses/managerQuestions/:reportId` | admin-authenticated users      |  post a new manager feedback to the responses table|
+| PUT    | `/responses/managerQuestions/:id` | admin-authenticated users      |  update a manager feedback in the responses table|
 
 #### Slack Routes
 
@@ -327,9 +337,11 @@ For local development, save a .env file in the root directory with the following
 
 
 # Maintainers
-| ![Arshak Asriyan](https://avatars3.githubusercontent.com/u/45574365?s=400&v=4) | ![Erin Koen](https://avatars0.githubusercontent.com/u/46381469?s=400&v=4) | ![Mikaela Currier](https://avatars0.githubusercontent.com/u/42783498?s=400&v=4) | ![Shaun Carmody](https://avatars3.githubusercontent.com/u/23500510?s=400&v=4) |
-| --------------------------------------------- | --------------------------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------- | 
-| [@AAsriyan](https://github.com/AAsriyan) | [@erin-koen](https://github.com/erin-koen) | [@mikaelacurrier](https://github.com/mikaelacurrier) | [@shaunmcarmody](https://github.com/shaunmcarmody) | 
+|                                      [Ben Tsao](https://github.com/cbtsao47)                                     |                                           [Erica Chen](https://github.com/erica-y-chen)                                             |                                          [Mckay Wrigley](https://github.com/mckaywrigley45)                                              |                                      [Curtis Hubbard](https://github.com/chubbard022)                                         |     [Taylor Blount](https://github.com/thirdeyeclub)    |
+| :-----------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------: | :---: |
+|  [<img src="https://avatars2.githubusercontent.com/u/16598376?s=400&v=4" width = "200" />](github.com/cbtsao47)  |          [<img src="https://avatars0.githubusercontent.com/u/47537927?s=400&v=4" width = "200" />](https://github.com/erica-y-chen)          |              [<img src="https://avatars3.githubusercontent.com/u/29221284?s=400&v=4" width = "200" />](https://github.com/mckaywrigley45)               |  [<img src="https://avatars2.githubusercontent.com/u/16605573?s=460&v=4" width = "200" />](https://github.com/chubbard022)  |[<img src="https://avatars2.githubusercontent.com/u/45549491?s=400&v=4" width="200"/>](https://github.com/thirdeyeclub)
+|                  [<img src="https://github.com/favicon.ico" width="15"> ](https://github.com/cbtsao47)                   |                          [<img src="https://github.com/favicon.ico" width="15"> ](https://github.com/erica-y-chen)                           |                        [<img src="https://github.com/favicon.ico" width="15"> ](https://github.com/mckaywrigley45)                        |                   [<img src="https://github.com/favicon.ico" width="15"> ](https://github.com/chubbard022)                   |[<img src="https://github.com/favicon.ico" width="15"> ](https://github.com/thirdeyeclub)
+| [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/cbtsao/) | [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/eyufanchen/) | [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/mckay-wrigley-05b496166/) | [ <img src="https://static.licdn.com/sc/h/al2o9zrvru7aqj8e1x2rzsrca" width="15"> ](https://www.linkedin.com/in/curtis-hubbard-945764158/) |
 
 
 
