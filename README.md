@@ -302,6 +302,12 @@ Manager
 `filterUserLastSevenDays(reportId, userId)` -> Returns an array containing the last seven days of responses for `one user` for a given `reportId`
 <br><br>
 `filterSevenDays` -> Returns an array containing the last seven days of responses for `all users` for a given `reportId`
+<br><br>`filterThirtyDays(reportId, roles)`-> Returns a filtered list of all reports in the last thirty days
+<br><br>`filterTwoWeeks(reportId, roles)`-> Returns a filtered list of all reports in the last two weeks
+<br><br>`filterOneDay(reportId, roles)`-> Returns a filtered list of all the reports in the last day
+
+<br><br>`getHistoricalSubmissionRate(teamId)`->Returns a list of all submitted surveys by team
+<br><br>`getHistoricalSubmissionRateByReport(teamId, reportId)`->Returns a list of all submissions for a given report
 <br>
 <br>
 <br>
