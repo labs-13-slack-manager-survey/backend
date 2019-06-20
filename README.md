@@ -1,10 +1,10 @@
 # **SLACK STANDUP API**
 
-This is the backend for the Lambda Labs 12 project [Stand-Em-Ups](www.stand-em-ups.com). The product runs aysnchronous standup meetings for teams via a web app or Slack. Managers can create teams and customize reports which are comprised of a set of questions and schedule. Those questions are delivered to team members on the schedule determined by the manager. Team members respond in the app or via a Slack DM. Responses are then displayed for the entire team to see.  
+This is the backend for the Lambda Labs 13 project [Slackr](https://slackrs-app.netlify.com/). The product runs aysnchronous standup meetings for teams via a web app or Slack. Managers can create teams, answer managerial standup questions, and customize reports to taylor to their specifications. Those questions are delivered to team members on the schedule determined by the manager. Team members respond in the app or via a Slack DM. Responses are then displayed for the entire team to see.  
 
 # **Deployed Backend**
 
-- https://master-slack-standup.herokuapp.com/
+- https://slackrs-app.herokuapp.com/
 
 # **Technologies**
 
@@ -28,6 +28,9 @@ This is the backend for the Lambda Labs 12 project [Stand-Em-Ups](www.stand-em-u
 #### Development
 
 - [Nodemon](https://www.npmjs.com/package/nodemon): `nodemon is a tool that helps develop Node.js based applications by automatically restarting the node application when file changes in the directory are detected`
+- [cross-env](https://www.npmjs.com/package/cross-env): `cross-env helps run scripts that are set and uses environmental variables across multiple platforms`
+- [cypress](https://www.npmjs.com/package/cypress): `cypress is a end to end testing framework.`
+- [jest](https://www.npmjs.com/package/jest): `Jest is a Javascript Framework that focuses on simplicity. Jest does not have any configuration, and uses snapshots to keep track of large object`
 
 # **Setup**
 
@@ -46,9 +49,9 @@ yarn server
 # **Table of Contents**
 
 - [Third Party Integrations](#third-party-integrations)
-    - [Authentication And User Management](#authentication-and-user-management)
-    - [Slack](#slack)
-    - [SendGrid](#sendgrid)
+- [Authentication And User Management](#authentication-and-user-management)
+- [Slack](#slack)
+- [SendGrid](#sendgrid)
 - [Summary Table of API Endpoints](#summary-table-of-api-endpoints)
 - [Database Table Schema](#database-table-schema)
 - [Database Models](#database-models)
