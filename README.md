@@ -227,7 +227,12 @@ Aside from `auth/firebase` all requests must be made with a header that includes
 <br><br>`update(userId, user)` -> Edits the User record associated with the provided User ID with the information contained in the provided User object
 <br><br>`updateTeamId(userId, teamId)` -> Updates the teamId field on the User record associated with the provided User ID with the provided teamId
 <br><br>`remove(userId)` -> Removes the User record associated with the provided userId
-<br><br>
+<br><br>`getPollsStatsByTeamIdAndReportId(teamId, reportId)`-> Returns polls by the team ID and also the Report ID that match
+<br><br>`getPollsStatsByTeamId(teamId)`->Returns a list of poll stats given a team ID that matches all polls listed
+<br><br>`findMembers(teamId) `-> Returns the member within a team given the teamID being passed in
+<br><br>`findMembersCount(teamId)`->Returns the number of team members within a team given a teamID being passed in
+Manager
+<br><br>`findManager(teamId)`->Returns a manager given the teamID
 
 #### REPORTS
 
@@ -265,6 +270,12 @@ Aside from `auth/firebase` all requests must be made with a header that includes
 `findByUserAndJoin(reportId, userId, startDay, endDay)` -> Returns an array of objects associated with a provided report ID AND a provided user ID between two provided dates. Object keys are `userId`, `users.fullName`, `users.profilePic`, `responses.id`, `responses.question`, `responses.answer`, `responses.submitted_date`. They are chronologically ordered from newest to oldest based on `responses.submitted_date`.
 <br><br>
 `findTodays(userId, reportId, startDay, endDay)` -> Returns an array of all Response objects associated with the user ID and the report ID between the startDay and the endDay
+<br><br>`update(id, changes)`-> Update a response
+<br><br>`findAvgSentiment(teamId, reportId)`->find average sentiment of a team's response by the teamId and reportId
+<br><br>`findDistinctUserCountBy(filter)`->Get responses of a member by filter
+<br><br>`findManagerFeedbackByReportIdAndUserId(reportId, userId)`->Get manager feedback by id
+<br><br>`findManagerFeedbackByReportIdAndUserIdAsMembers(reportId, userId)`->Get manager feedback by id
+
 <br>
 <br>
 <br>
