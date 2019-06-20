@@ -195,8 +195,8 @@ router.post("/:reportId", async (req, res) => {
       reportId,
       userId: subject,
       submitted_date: now,
-      sentimentQuestions: question.question,
-      comments: question.response,
+      question: question.question,
+      answer: question.response,
       sentimentRange: question.sentimentRange
     }));
     await Responses.add(responseArr);
