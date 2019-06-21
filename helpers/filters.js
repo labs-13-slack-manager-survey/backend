@@ -5,7 +5,10 @@ module.exports = {
   filterByUserAndDate,
   filterByDate,
   filterUserLastSevenDays,
-  filterSevenDays
+  filterSevenDays,
+  filterThirtyDays,
+  filterTwoWeeks,
+  filterOneDay
 };
 
 // ------- POST /:reportId/filter helpers -------
@@ -52,6 +55,57 @@ async function filterSevenDays(reportId, roles) {
 
   // Loop through the last 7 days and search reports for each day
   for (let i = 0; i < 7; i++) {
+    const day = subDays(date, i);
+    const batch = {
+      date: day,
+      responses: await searchReports(reportId, day, roles)
+    };
+    payload.push(batch);
+  }
+  return payload;
+}
+
+async function filterThirtyDays(reportId, roles) {
+  const date = new Date();
+
+  let payload = [];
+
+  // Loop through the last 7 days and search reports for each day
+  for (let i = 0; i < 30; i++) {
+    const day = subDays(date, i);
+    const batch = {
+      date: day,
+      responses: await searchReports(reportId, day, roles)
+    };
+    payload.push(batch);
+  }
+  return payload;
+}
+
+async function filterTwoWeeks(reportId, roles) {
+  const date = new Date();
+
+  let payload = [];
+
+  // Loop through the last 7 days and search reports for each day
+  for (let i = 0; i < 14; i++) {
+    const day = subDays(date, i);
+    const batch = {
+      date: day,
+      responses: await searchReports(reportId, day, roles)
+    };
+    payload.push(batch);
+  }
+  return payload;
+}
+
+async function filterOneDay(reportId, roles) {
+  const date = new Date();
+
+  let payload = [];
+
+  // Loop through the last 7 days and search reports for each day
+  for (let i = 0; i < 1; i++) {
     const day = subDays(date, i);
     const batch = {
       date: day,

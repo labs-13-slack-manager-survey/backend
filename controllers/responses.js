@@ -9,8 +9,87 @@ const {
   filterByUserAndDate,
   filterByDate,
   filterUserLastSevenDays,
-  filterSevenDays
+  filterSevenDays,
+  filterThirtyDays,
+  filterTwoWeeks,
+  filterOneDay
 } = require("../helpers/filters");
+// get all the manager feedback in a report
+router.get("/managerQuestions/:reportId", async (req, res) => {
+  try {
+    const { reportId } = req.params;
+    const { subject, roles, teamId } = req.decodedJwt;
+    // Find the manager questions associated with the report Id
+    let managerFeedback = [];
+    if (roles === "admin") {
+      managerFeedback = await Responses.findManagerFeedbackByReportIdAndUserId(
+        reportId,
+        subject
+      );
+    } else {
+      let { id } = await Users.findManager(teamId);
+      managerFeedback = await Responses.findManagerFeedbackByReportIdAndUserId(
+        reportId,
+        id
+      );
+    }
+    res.status(200).json(managerFeedback);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+    throw new Error(err);
+  }
+});
+// post a new manager feedback to the responses table
+router.post("/managerQuestions/:reportId", async (req, res) => {
+  try {
+    const { reportId } = req.params;
+    const { subject, teamId } = req.decodedJwt;
+    const { managerQuestions, managerResponses } = req.body;
+    // Query the db to verify that this team member is verified to insert a
+    // resouce for this report.
+    const resource = await Reports.findByIdAndTeamId(reportId, teamId);
+    if (resource) {
+      const managerFeedback = {
+        reportId,
+        userId: subject,
+        managerQuestions: JSON.stringify(managerQuestions),
+        managerResponses: JSON.stringify(managerResponses),
+        submitted_date: moment().format()
+      };
+      // add manager feedback to the responses table
+      await Responses.add(managerFeedback);
+      const historicalManagerFeedback = await Responses.findManagerFeedbackByReportIdAndUserId(
+        reportId,
+        subject
+      );
+      res.status(201).json(historicalManagerFeedback);
+    } else {
+      res.status(404).json({ message: "report does not exist" });
+    }
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+    throw new Error(err);
+  }
+});
+// update a manager feedback in the responses table
+router.put("/managerQuestions/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { managerQuestions, managerResponses } = req.body;
+    const response = await Responses.findById(id);
+    const changes = {
+      ...response,
+      managerQuestions: managerQuestions,
+      managerResponses: managerResponses
+    };
+    const update = await Responses.update(id, changes);
+    res.status(200).json({ message: "update success!", update });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+    throw new Error(err);
+  }
+});
+
 // returns the average sentiment of a report
 router.get("/sentimentAvg/:reportId", async (req, res) => {
   try {
@@ -29,6 +108,7 @@ router.get("/sentimentAvg/:reportId", async (req, res) => {
     throw new Error(err);
   }
 });
+
 // get a user's responses if they've completed a report today
 router.get("/", async (req, res) => {
   const { userId } = req.decodedJwt;
@@ -56,11 +136,11 @@ router.get("/", async (req, res) => {
 });
 
 // This route will insert responses in the database with a reference to the report id
-
 router.post("/:reportId", async (req, res) => {
   const { reportId } = req.params;
   const { subject, teamId } = req.decodedJwt;
   try {
+    const { questions, sentimentQuestions } = req.body;
     // Query the db to verify that this team member is verified to insert a
     // resouce for this report.
     const resource = await Reports.findByIdAndTeamId(reportId, teamId);
@@ -88,33 +168,39 @@ router.post("/:reportId", async (req, res) => {
     // to alter them, throw an error, also check that each response has been
     // filled in.
 
-    for (let i = 0; i < req.body.length; i++) {
-      const question = req.body[i].question;
+    // not sure if this code is even needed
+    // for (let i = 0; i < req.body.questions.length; i++) {
+    //   const question = req.body.questions[i];
+    //   const response = resource.isSentiment
+    //     ? true
+    //     : req.body.questions[i].response.trim();
+    //   if (response.length < 1) {
+    //     throw new Error("This report requires all responses to be filled in.");
+    //   }
 
-      const response = resource.isSentiment
-        ? true
-        : req.body[i].response.trim();
-
-      if (response.length < 1) {
-        throw new Error("This report requires all responses to be filled in.");
-      }
-
-      if (!resourceQuestions.includes(question)) {
-        throw new Error("Incoming questions failed verification check");
-      }
-    }
+    //   if (!resourceQuestions.includes(question)) {
+    //     throw new Error("Incoming questions failed verification check");
+    //   }
+    // }
     // All questions have passed verification and can now be inserted to the model
-
-    const responseArr = req.body.map(body => ({
+    const now = moment().format();
+    const responseArr = questions.map(question => ({
       reportId,
       userId: subject,
-      question: body.question,
-      answer: body.response,
-      submitted_date: moment().format(),
-      sentimentRange: body.sentimentRange
+      question: question.question,
+      answer: question.response,
+      submitted_date: now
     }));
-
+    const sentimentResArr = sentimentQuestions.map(question => ({
+      reportId,
+      userId: subject,
+      submitted_date: now,
+      question: question.question,
+      answer: question.response,
+      sentimentRange: question.sentimentRange
+    }));
     await Responses.add(responseArr);
+    await Responses.add(sentimentResArr);
 
     const batch = {
       date: today,
@@ -130,6 +216,7 @@ router.post("/:reportId", async (req, res) => {
       ])
     };
     await Users.update(user.id, changesToUser);
+    console.log("test", batch);
     res.status(201).json([batch]);
   } catch (error) {
     res.status(500).json({
@@ -157,6 +244,58 @@ router.get("/:reportId", async (req, res) => {
   }
 });
 
+// Gets all responses by report for the last 30 days
+router.get("/:reportId/month", async (req, res) => {
+  const { reportId } = req.params;
+  const { teamId } = req.decodedJwt;
+  try {
+    // Run a check in the Reports model to verify that the reportId and TeamId are a match
+    // If teamId and reportId don't match with resource error will be thrown
+    await Reports.findByIdAndTeamId(reportId, teamId);
+    const responses = await filterThirtyDays(reportId);
+    res.status(200).json(responses);
+  } catch (err) {
+    res.status(500).json({
+      message: err.message
+    });
+    throw new Error(err);
+  }
+});
+
+// Gets all responses by report for the last 14 days
+router.get("/:reportId/twoWeeks", async (req, res) => {
+  const { reportId } = req.params;
+  const { teamId } = req.decodedJwt;
+  try {
+    // Run a check in the Reports model to verify that the reportId and TeamId are a match
+    // If teamId and reportId don't match with resource error will be thrown
+    await Reports.findByIdAndTeamId(reportId, teamId);
+    const responses = await filterTwoWeeks(reportId);
+    res.status(200).json(responses);
+  } catch (err) {
+    res.status(500).json({
+      message: err.message
+    });
+    throw new Error(err);
+  }
+});
+// Gets all responses by report for the day
+router.get("/:reportId/day", async (req, res) => {
+  const { reportId } = req.params;
+  const { teamId } = req.decodedJwt;
+  try {
+    // Run a check in the Reports model to verify that the reportId and TeamId are a match
+    // If teamId and reportId don't match with resource error will be thrown
+    await Reports.findByIdAndTeamId(reportId, teamId);
+    const responses = await filterOneDay(reportId);
+    res.status(200).json(responses);
+  } catch (err) {
+    res.status(500).json({
+      message: err.message
+    });
+    throw new Error(err);
+  }
+});
 router.post("/:reportId/filter", async (req, res) => {
   const { reportId } = req.params;
   const { teamId } = req.decodedJwt;

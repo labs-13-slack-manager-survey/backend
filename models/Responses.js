@@ -6,12 +6,22 @@ module.exports = {
   findBy,
   findById,
   findDistinctUserCountBy,
+  findManagerFeedbackByReportIdAndUserId,
+  findManagerFeedbackByReportIdAndUserIdAsMembers,
+  update,
   // findSubmissionRatePerMemberBy,
   findByAndJoin,
   findTodays,
   findByUserAndJoin,
   findAvgSentiment
 };
+// update a response
+async function update(id, changes) {
+  await db("responses")
+    .where({ id })
+    .update(changes);
+  return findById(id);
+}
 // find average sentiment of a team's response by the teamId and reportId
 async function findAvgSentiment(teamId, reportId) {
   return await db("reports as rep")
@@ -47,20 +57,7 @@ function findDistinctUserCountBy(filter) {
     .countDistinct("userId")
     .first();
 }
-// Get submission rate of a member
-// async function findSubmissionRatePerMemberBy(reportId, teamId) {
-//   // get all responses of a member
-//   const responses = await db("responses")
-//     .where({ reportId })
-//     .select("id", "userId", "submitted_date");
-//   // get all members of a team
-//   const members = await db("users").where({ teamId });
-//   responses.map(response=>{
 
-//   })
-//   // calculate submission rate
-//   return result;
-// }
 // Get submitted report by user and by date
 function findTodays(user, reportId, startday, endDay) {
   return db("responses")
@@ -76,13 +73,21 @@ function findById(id) {
     .where({ id })
     .first();
 }
-
+// Get manager feedback by id
+function findManagerFeedbackByReportIdAndUserId(reportId, userId) {
+  return db("responses").where({ reportId, userId });
+}
+// Get manager feedback by id
+function findManagerFeedbackByReportIdAndUserIdAsMembers(reportId, userId) {
+  return db("responses").where({ reportId, managerId: userId, userId });
+}
 // This allows us to search by reportId join with users table and return user's name and profile picture.
 function findByAndJoin(reportId, startday, endDay) {
   return db("responses")
     .where("reportId", reportId)
     .where("submitted_date", ">=", startday)
     .where("submitted_date", "<=", endDay)
+    .whereNot({ question: null, answer: null })
     .join("users", "responses.userId", "users.id")
     .select(
       "users.id as userId",

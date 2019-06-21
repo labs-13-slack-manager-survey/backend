@@ -20,15 +20,26 @@ exports.up = function(knex) {
       .onDelete("CASCADE")
       .onUpdate("CASCADE");
 
-    tbl.text("question").notNullable();
+    tbl.text("question");
 
     tbl.text("answer");
 
     tbl.datetime("submitted_date", { precision: 2 }).notNullable();
+
     tbl.text("comments");
+
     tbl.integer("sentimentRange");
+
+    tbl.boolean("isComplete").defaultTo(false);
+
+    tbl.text("sentimentQuestions").defaultTo("[]");
+
+    tbl.text("managerQuestions").defaultTo("[]");
+
+    tbl.text("managerResponses").defaultTo("[]");
   });
 };
+
 
 exports.down = function(knex) {
   return knex.schema.dropTableIfExists("responses");
