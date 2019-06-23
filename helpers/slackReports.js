@@ -83,7 +83,7 @@ const slackReports = async () => {
       })
     );
     //Call the slack button function
-    const but = await button(stitchedReports);
+    await button(stitchedReports);
 
     return "The function has successfully ran";
   } catch (error) {
