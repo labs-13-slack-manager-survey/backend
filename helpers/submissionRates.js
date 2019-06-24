@@ -4,8 +4,7 @@ module.exports = {
   getHistoricalSubmissionRateByReport
 };
 async function getHistoricalSubmissionRate(teamId) {
-  const users = await Users.getPollsStatsByTeamId(teamId);
-
+  const users = await Users.findMembers(teamId);
   // grab polls and responses  received , array of arrays
   const pollsReceived = users.map(user => JSON.parse(user.pollsReceived));
   const responsesMade = users.map(user => JSON.parse(user.responsesMade));
@@ -22,7 +21,7 @@ async function getHistoricalSubmissionRate(teamId) {
 }
 
 async function getHistoricalSubmissionRateByReport(teamId, reportId) {
-  const users = await Users.getPollsStatsByTeamId(teamId, reportId);
+  const users = await Users.findMembers(teamId);
   // grab polls and responses received, array of arrays
   const pollsReceived = users.map(user => JSON.parse(user.pollsReceived));
   const responsesMade = users.map(user => JSON.parse(user.responsesMade));
