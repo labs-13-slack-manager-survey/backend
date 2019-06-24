@@ -10,7 +10,8 @@ const slackReports = async () => {
       //Add users to each report
       const stitchedReports = await Promise.all(
         reports.map(async report => {
-          let users = await Users.findByTeam(report.teamId);
+          let users = await Users.findMembers(report.teamId);
+          console.log(users);
           users.forEach(async user => {
             // make the changes to update the users table with
             const changes = {
