@@ -82,7 +82,7 @@ const button = async reports => {
               return_im: true
             };
             const { data } = await axios.post(url, message, { headers });
-            if (managerResponses.length) {
+            if (managerResponses) {
               const combinedArr = combine(managerQuestions, managerResponses);
               result = combinedArr.join("");
               response = {
@@ -140,7 +140,7 @@ const button = async reports => {
                   }
                 ]
               };
-            } else {
+            } else if (!managerQuestions) {
               response = {
                 // the response is the message that's being sent to slack.
                 channel: data.channel.id,
