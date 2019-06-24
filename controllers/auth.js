@@ -62,7 +62,7 @@ router.post("/firebase", async ({ body }, res) => {
     throw new Error(error);
   }
 });
-
+// add to slack button triggers this end point to grab the slack info and save to local database
 router.get("/slack/", authenticate, async (req, res, next) => {
   const { subject, roles, teamId } = req.decodedJwt;
   const payload = qs.stringify({
