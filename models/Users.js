@@ -13,7 +13,6 @@ module.exports = {
   findManager,
   findMembers,
   findMembersCount,
-  getPollsStatsByTeamId,
   getPollsStatsByTeamIdAndReportId,
   update,
   updateTeamId,
@@ -33,11 +32,6 @@ function getPollsStatsByTeamIdAndReportId(teamId, reportId) {
     .join("reports as r", "u.teamId", "=", "r.teamId")
     .where({ "u.teamId": teamId, "r.id": reportId })
     .select("u.id", "u.pollsReceived", "u.responsesMade");
-}
-function getPollsStatsByTeamId(teamId) {
-  return db("users")
-    .where({ teamId })
-    .select("id", "pollsReceived", "responsesMade");
 }
 // Get all users
 function find() {

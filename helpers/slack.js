@@ -187,7 +187,6 @@ const button = async reports => {
         const responseMessage = await axios.post(postUrl, response, {
           headers
         });
-        // console.log("response from slack", responseMessage);
       });
     });
   } catch (err) {

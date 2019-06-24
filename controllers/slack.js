@@ -135,7 +135,6 @@ router.post("/sendReport", slackVerification, async (req, res) => {
       // res.status(500).json({
       //   message: error.message
       // });
-      console.log(error.message);
       throw new Error(error);
     }
   }

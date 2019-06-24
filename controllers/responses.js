@@ -216,7 +216,6 @@ router.post("/:reportId", async (req, res) => {
       ])
     };
     await Users.update(user.id, changesToUser);
-    console.log("test", batch);
     res.status(201).json([batch]);
   } catch (error) {
     res.status(500).json({

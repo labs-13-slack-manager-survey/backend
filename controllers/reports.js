@@ -75,7 +75,6 @@ router.get("/:reportId", async (req, res) => {
   const { teamId } = req.decodedJwt;
   try {
     const report = await Reports.findByIdAndTeamId(reportId, teamId);
-    console.log(report);
     if (report) {
       const message = "The reports were found in the database.";
       res.status(200).json({
