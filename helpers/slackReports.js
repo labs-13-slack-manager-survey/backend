@@ -6,6 +6,7 @@ const slackReports = async () => {
   try {
     //Get all filtered reports from above function
     const reports = await findReportsToBeSent();
+
     if (reports.length) {
       //Add users to each report
       const stitchedReports = await Promise.all(
@@ -29,7 +30,6 @@ const slackReports = async () => {
           const filteredUsers = users.filter(
             user => user.slackUserId && user.active
           );
-
           const newReport = {
             ...report,
             users: filteredUsers
@@ -37,7 +37,6 @@ const slackReports = async () => {
           return newReport;
         })
       );
-      console.log("sReports", stitchedReports);
       //Call the slack button function
       await button(stitchedReports);
     }
