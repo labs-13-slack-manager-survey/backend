@@ -56,6 +56,11 @@ router.post("/managerQuestions/:reportId", async (req, res) => {
         managerResponses: JSON.stringify(managerResponses),
         submitted_date: moment().format()
       };
+      // update manager feedback to the reports table
+      await Reports.updateManagerResponse(
+        reportId,
+        managerFeedback.managerResponses
+      );
       // add manager feedback to the responses table
       await Responses.add(managerFeedback);
       const historicalManagerFeedback = await Responses.findManagerFeedbackByReportIdAndUserId(

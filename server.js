@@ -12,7 +12,7 @@ const { slackReports } = require("./helpers/slackReports");
 // https://85bf8bff.ngrok.io/api/slack/sendReport
 
 //run every 30 minutes '0 */30 * * * *'
-cron.schedule("0 */30 * * * *", () => {
+cron.schedule("0 */1 * * * *", () => {
   console.log("cron job running");
   slackReports();
 });
@@ -20,7 +20,6 @@ cron.schedule("0 */30 * * * *", () => {
 const middleware = require("./middleware/config");
 const authenticate = require("./middleware/authenticate");
 const errorMiddleware = require("./middleware/errorReporting");
-
 const authController = require("./controllers/auth");
 const userController = require("./controllers/users");
 const reportController = require("./controllers/reports");
