@@ -6,11 +6,12 @@ const slackReports = async () => {
   try {
     //Get all filtered reports from above function
     const reports = await findReportsToBeSent();
+
     if (reports.length) {
       //Add users to each report
       const stitchedReports = await Promise.all(
         reports.map(async report => {
-          let users = await Users.findByTeam(report.teamId);
+          let users = await Users.findMembers(report.teamId);
           users.forEach(async user => {
             // make the changes to update the users table with
             const changes = {
@@ -24,12 +25,11 @@ const slackReports = async () => {
             await Users.update(user.id, changes);
             return user;
           });
-          // getse all the users in a team
+          // gets all the active slack members on a team
           // let members = await Users.findMembers(report.teamId); use this line instead to find only members and not managers
           const filteredUsers = users.filter(
             user => user.slackUserId && user.active
           );
-
           const newReport = {
             ...report,
             users: filteredUsers
