@@ -43,8 +43,8 @@ async function findReportsToBeSent() {
     const currentHour = getHours(currentDate);
     const currentMin = getMinutes(currentDate);
     //Check to see if the current hour/min matches the hour/min of the report
-    const sameHours = hours == currentHour ? true : true;
-    const sameMin = minutes == currentMin ? true : true;
+    const sameHours = hours == currentHour ? true : false;
+    const sameMin = minutes == currentMin ? true : false;
 
     // Check to see if all checks match true
     return (

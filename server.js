@@ -20,7 +20,6 @@ cron.schedule("0 */30 * * * *", () => {
 const middleware = require("./middleware/config");
 const authenticate = require("./middleware/authenticate");
 const errorMiddleware = require("./middleware/errorReporting");
-
 const authController = require("./controllers/auth");
 const userController = require("./controllers/users");
 const reportController = require("./controllers/reports");
