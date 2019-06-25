@@ -1,11 +1,12 @@
 const router = require("express").Router();
 const axios = require("axios");
-const qs = require("qs");
+
 const Users = require("../models/Users");
 const Responses = require("../models/Responses");
 const moment = require("moment");
 
 const confirmation = require("../helpers/slackConfirmation");
+const { openDialog } = require("../helpers/slack");
 const authenticate = require("../middleware/authenticate");
 
 const { slackVerification } = require("../middleware/slackMiddleware");
@@ -119,7 +120,7 @@ router.post("/sendReport", slackVerification, async (req, res) => {
     try {
       //immediately respond with an empty 200 response to let slack know command was received
       const { submission, state } = payload;
-
+      console.log(submission);
       const reportId = parseInt(/\w+/.exec(state)[0]);
       let [report_Id, channelId, userId] = payload.state.split(" ");
       // const channelId = channel.id;
@@ -173,35 +174,5 @@ router.post("/sendReport", slackVerification, async (req, res) => {
     }
   }
 });
-
-// open the dialog by calling dialogs.open method and sending the payload
-const openDialog = async (payload, real_name, value, channel, elements) => {
-  // value.id is the id of the report
-  const dialogData = {
-    token: process.env.SLACK_ACCESS_TOKEN,
-    trigger_id: payload.trigger_id,
-    dialog: JSON.stringify({
-      title: value.reportName,
-      callback_id: "report",
-      submit_label: "submit",
-      state: `${value.id} ${channel} ${value.users[0].id}`,
-      elements: [
-        ...elements,
-        {
-          label: "Posted by",
-          type: "text",
-          name: "send_by",
-          value: `${real_name}`
-        }
-      ]
-    })
-  };
-  // open the dialog by calling dialogs.open method and sending the payload
-  const promise = await axios.post(
-    `${apiUrl}/dialog.open`,
-    qs.stringify(dialogData)
-  );
-  return promise;
-};
 
 module.exports = router;

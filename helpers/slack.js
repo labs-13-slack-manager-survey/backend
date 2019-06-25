@@ -1,11 +1,12 @@
+const qs = require("qs");
+const axios = require("axios");
 const url = "https://slack.com/api/im.open";
 const postUrl = "https://slack.com/api/chat.postMessage";
 const headers = {
   "Content-type": "application/json; charset=utf-8",
   Authorization: `Bearer ${process.env.SLACK_ACCESS_TOKEN}`
 };
-const axios = require("axios");
-
+const apiUrl = "https://slack.com/api";
 //Steps for sending out reports
 
 // Array of reports to be sent out
@@ -221,6 +222,37 @@ function combine(arr1, arr2) {
   return result;
 }
 
+// open the dialog by calling dialogs.open method and sending the payload
+const openDialog = async (payload, real_name, value, channel, elements) => {
+  // value.id is the id of the report
+  const dialogData = {
+    token: process.env.SLACK_ACCESS_TOKEN,
+    trigger_id: payload.trigger_id,
+    dialog: JSON.stringify({
+      title: value.reportName,
+      callback_id: "report",
+      submit_label: "submit",
+      state: `${value.id} ${channel} ${value.users[0].id}`,
+      elements: [
+        ...elements,
+        {
+          label: "Posted by",
+          type: "text",
+          name: "send_by",
+          value: `${real_name}`
+        }
+      ]
+    })
+  };
+  // open the dialog by calling dialogs.open method and sending the payload
+  const promise = await axios.post(
+    `${apiUrl}/dialog.open`,
+    qs.stringify(dialogData)
+  );
+  return promise;
+};
+
 module.exports = {
-  button
+  button,
+  openDialog
 };
