@@ -154,14 +154,18 @@ router.post("/sendReport", slackVerification, async (req, res) => {
         channelId
       );
       //create an array of response objects
-      let responseArr = answers.map((answer, index) => ({
-        reportId,
-        userId: id,
-        question: questions[index],
-        answer: Number.isNaN(Number(answer)) ? answer : null,
-        submitted_date: moment().format(),
-        sentimentRange: Number.isNaN(Number(answer)) ? null : Number(answer)
-      }));
+      let responseArr = answers.map((answer, index) => {
+        let isNotSentiment = Number.isNaN(Number(answer));
+        return {
+          reportId,
+          userId: id,
+          question: questions[index],
+          // sentimentQuestions: isNotSentiment ? null : questions[index],
+          answer: isNotSentiment ? answer : null,
+          submitted_date: moment().format(),
+          sentimentRange: isNotSentiment ? null : Number(answer)
+        };
+      });
       //insert array of response objects to response table
       await Responses.add(responseArr);
       //not sure we need this
