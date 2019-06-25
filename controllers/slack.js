@@ -1,11 +1,12 @@
 const router = require("express").Router();
 const axios = require("axios");
-const qs = require("qs");
+
 const Users = require("../models/Users");
 const Responses = require("../models/Responses");
 const moment = require("moment");
 
 const confirmation = require("../helpers/slackConfirmation");
+const { openDialog } = require("../helpers/slack");
 const authenticate = require("../middleware/authenticate");
 
 const { slackVerification } = require("../middleware/slackMiddleware");
@@ -39,67 +40,102 @@ router.get("/channels", authenticate, async (req, res, next) => {
 });
 // slack hits this endpoint when anyone intereacts with the button component we created
 router.post("/sendReport", slackVerification, async (req, res) => {
+  // immediately send a 200 ok status to slack as per requested on the slack documentation
+  res.status(200).send();
   const payload = JSON.parse(req.body.payload);
   const { type, user } = payload;
   const slackUserId = user.id;
   const { id, fullName } = await Users.findBySlackId(slackUserId);
-  // get the id of general channel
+
   const endpoint = `${apiUrl}/conversations.list?token=${
     process.env.SLACK_ACCESS_TOKEN
   }`;
   const { data } = await axios.get(endpoint);
+  // get the id of general channel
   const channel = data.channels.find(
     channel => channel.name.toLowerCase() === "general"
   );
   // if the person clicks on "respond" button to respond to a report, the following if statement runs
   if (type === "block_actions") {
     const value = JSON.parse(payload.actions[0].value);
-    //pull questions out of the value and put them in an array.
+    //pull questions out of the value
     const questions = JSON.parse(value.questions);
+    // pull sentiment questions out of the value
+    const sentimentQuestions = JSON.parse(value.sentimentQuestions);
     //map through questions and create an interactive element for each
     const elements = questions.map(question => {
       let object = {
         label: question,
         type: "textarea",
-        name: question,
+        name: `sent${question}`,
         value: payload.message.text
       };
       return object;
     });
-
+    //map through questions and create an interactive element for each
+    const sentimentQuestionElements =
+      sentimentQuestions &&
+      sentimentQuestions.map(question => {
+        let object = {
+          label: question,
+          name: question,
+          type: "select",
+          placeholder: "From a scale of 1 - 5",
+          options: [
+            {
+              label: "1",
+              value: "1"
+            },
+            {
+              label: "2",
+              value: "2"
+            },
+            {
+              label: "3",
+              value: "3"
+            },
+            {
+              label: "4",
+              value: "4"
+            },
+            {
+              label: "5",
+              value: "5"
+            }
+          ]
+        };
+        return object;
+      });
+    // combine both arrays
+    const allQuestionsElements = elements.concat(sentimentQuestionElements);
     try {
       //call openDialog to send modal in DM
-      openDialog(payload, fullName, value, channel.id, elements);
+      openDialog(payload, fullName, value, channel.id, allQuestionsElements);
     } catch (error) {
       res
         .status(500)
         .json({ message: "Something went wrong while getting the questions." });
     }
   } else if (type === "dialog_submission") {
-    const { submission, state } = payload;
-
-    const reportId = parseInt(/\w+/.exec(state)[0]);
-    let [report_Id, channelId, userId] = payload.state.split(" ");
-    // const channelId = channel.id;
-
-    //Submissions comes in as { question: answer ... send_by: full_name }. This strips out the questions
-    const questions = Object.keys(submission).filter(
-      item => item !== "send_by"
-    );
-
-    // Revisit, can filter with dynamic user id
-    let answers = Object.values(submission);
-
-    answers.splice(answers.length - 1, 1);
-
     try {
       //immediately respond with an empty 200 response to let slack know command was received
-      res.send("");
+      const { submission, state } = payload;
+      console.log(submission);
+      const reportId = parseInt(/\w+/.exec(state)[0]);
+      let [report_Id, channelId, userId] = payload.state.split(" ");
+      // const channelId = channel.id;
+
+      //  Grab questions out of submission
+      const questions = Object.keys(submission).filter(
+        item => item !== "send_by"
+      );
+      // Grab answers out of submission
+      let answers = Object.values(submission);
+      answers.splice(answers.length - 1, 1);
 
       report_Id = Number(report_Id);
 
       const user = await Users.findById(userId);
-
       const changesToUser = {
         ...user,
         responsesMade: JSON.stringify([
@@ -108,6 +144,7 @@ router.post("/sendReport", slackVerification, async (req, res) => {
         ])
       };
       await Users.update(userId, changesToUser);
+
       //send confirmation of submission back to user and channel
       confirmation.sendConfirmation(
         user.id,
@@ -116,17 +153,19 @@ router.post("/sendReport", slackVerification, async (req, res) => {
         submission,
         channelId
       );
-
       //create an array of response objects
-      let responseArr = answers.map((answer, index) => ({
-        reportId,
-        userId: id,
-        question: questions[index],
-        // temp fix to send data to the correct field! will need to be changed after the new implementation of menus instead of dialogs
-        answer: Number.isNaN(Number(answer)) ? answer : null,
-        submitted_date: moment().format(),
-        sentimentRange: Number.isNaN(Number(answer)) ? null : Number(answer)
-      }));
+      let responseArr = answers.map((answer, index) => {
+        let isNotSentiment = Number.isNaN(Number(answer));
+        return {
+          reportId,
+          userId: id,
+          question: questions[index],
+          // sentimentQuestions: isNotSentiment ? null : questions[index],
+          answer: isNotSentiment ? answer : null,
+          submitted_date: moment().format(),
+          sentimentRange: isNotSentiment ? null : Number(answer)
+        };
+      });
       //insert array of response objects to response table
       await Responses.add(responseArr);
       //not sure we need this
@@ -139,35 +178,5 @@ router.post("/sendReport", slackVerification, async (req, res) => {
     }
   }
 });
-
-// open the dialog by calling dialogs.open method and sending the payload
-const openDialog = async (payload, real_name, value, channel, elements) => {
-  // value.id is the id of the report
-  const dialogData = {
-    token: process.env.SLACK_ACCESS_TOKEN,
-    trigger_id: payload.trigger_id,
-    dialog: JSON.stringify({
-      title: value.reportName,
-      callback_id: "report",
-      submit_label: "submit",
-      state: `${value.id} ${channel} ${value.users[0].id}`,
-      elements: [
-        ...elements,
-        {
-          label: "Posted by",
-          type: "text",
-          name: "send_by",
-          value: `${real_name}`
-        }
-      ]
-    })
-  };
-  // open the dialog by calling dialogs.open method and sending the payload
-  const promise = await axios.post(
-    `${apiUrl}/dialog.open`,
-    qs.stringify(dialogData)
-  );
-  return promise;
-};
 
 module.exports = router;
