@@ -143,7 +143,7 @@ const button = async reports => {
             headers
           });
         });
-      } else {
+      } else if (report.managerQuestions && !report.managerResponses) {
         // if no manager responses are shown, prompt the manager to answer it
         let response = null;
         const manager = await Users.findManager(report.teamId);
