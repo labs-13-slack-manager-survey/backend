@@ -39,6 +39,8 @@ router.get("/channels", authenticate, async (req, res, next) => {
 });
 // slack hits this endpoint when anyone intereacts with the button component we created
 router.post("/sendReport", slackVerification, async (req, res) => {
+  // immediately send a 200 ok status to slack as per requested on the doc
+  res.status(200).send();
   const payload = JSON.parse(req.body.payload);
   const { type, user } = payload;
   const slackUserId = user.id;
