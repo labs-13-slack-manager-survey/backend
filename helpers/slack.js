@@ -146,8 +146,7 @@ const button = async reports => {
                         },
                         value: JSON.stringify(report)
                       }
-                    },
-                    sentimentQuestionsBlock
+                    }
                   ]
                 }
               ]
@@ -187,8 +186,7 @@ const button = async reports => {
                         },
                         value: JSON.stringify(report)
                       }
-                    },
-                    sentimentQuestionsBlock
+                    }
                   ]
                 }
               ]
