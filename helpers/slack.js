@@ -26,66 +26,7 @@ const button = async reports => {
         let result = "";
         let managerQuestions = JSON.parse(report.managerQuestions);
         let managerResponses = JSON.parse(report.managerResponses);
-        let sentimentQuestions = JSON.parse(report.sentimentQuestions);
-        let sentimentQuestionsBlock = sentimentQuestions
-          ? {
-              type: "section",
-              text: {
-                type: "mrkdwn",
-                text: sentimentQuestions[0]
-              },
-              accessory: {
-                type: "static_select",
-                placeholder: {
-                  type: "plain_text",
-                  text: "From 1-5",
-                  emoji: true
-                },
-                options: [
-                  {
-                    text: {
-                      type: "plain_text",
-                      text: "1",
-                      emoji: true
-                    },
-                    value: "value-0"
-                  },
-                  {
-                    text: {
-                      type: "plain_text",
-                      text: "2",
-                      emoji: true
-                    },
-                    value: "value-1"
-                  },
-                  {
-                    text: {
-                      type: "plain_text",
-                      text: "3",
-                      emoji: true
-                    },
-                    value: "value-2"
-                  },
-                  {
-                    text: {
-                      type: "plain_text",
-                      text: "4",
-                      emoji: true
-                    },
-                    value: "value-2"
-                  },
-                  {
-                    text: {
-                      type: "plain_text",
-                      text: "5",
-                      emoji: true
-                    },
-                    value: "value-2"
-                  }
-                ]
-              }
-            }
-          : null;
+
         try {
           // combine manager questions with responses to send into slack
           const message = {
