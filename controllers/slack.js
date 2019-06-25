@@ -108,22 +108,48 @@ router.post("/sendReport", slackVerification, async (req, res) => {
       });
     // combine both arrays
     const allQuestionsElements = elements.concat(sentimentQuestionElements);
-    try {
-      //call openDialog to send modal in DM
-      openDialog(payload, fullName, value, channel.id, allQuestionsElements);
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Something went wrong while getting the questions." });
+    if (value.managerResponses) {
+      try {
+        //call openDialog to send modal in DM
+        openDialog(payload, fullName, value, channel.id, allQuestionsElements);
+      } catch (error) {
+        res.status(500).json({
+          message: "Something went wrong while getting the questions."
+        });
+      }
+    } else {
+      try {
+        const managerQuestions = JSON.parse(value.managerQuestions);
+        const managerQuestionsElements = managerQuestions.map(
+          (question, index) => {
+            let object = {
+              label: `Question ${index + 1}`,
+              type: "textarea",
+              name: question,
+              value: question
+            };
+            return object;
+          }
+        );
+
+        openDialog(
+          payload,
+          fullName,
+          value,
+          channel.id,
+          managerQuestionsElements
+        );
+      } catch (err) {
+        res.status(500).json({
+          message: "something went wrong while getting the manager questions"
+        });
+      }
     }
   } else if (type === "dialog_submission") {
     try {
-      //immediately respond with an empty 200 response to let slack know command was received
       const { submission, state } = payload;
-      console.log(submission);
       const reportId = parseInt(/\w+/.exec(state)[0]);
-      let [report_Id, channelId, userId] = payload.state.split(" ");
-      // const channelId = channel.id;
+      let [report_Id, channelId, userId, teamId] = payload.state.split(" ");
 
       //  Grab questions out of submission
       const questions = Object.keys(submission).filter(
@@ -134,8 +160,11 @@ router.post("/sendReport", slackVerification, async (req, res) => {
       answers.splice(answers.length - 1, 1);
 
       report_Id = Number(report_Id);
-
-      const user = await Users.findById(userId);
+      let user = await Users.findManager(teamId);
+      // check userId, 0 means it's a manager, otherwise it's a member
+      if (userId !== "0") {
+        user = await Users.findById(userId);
+      }
       const changesToUser = {
         ...user,
         responsesMade: JSON.stringify([
@@ -144,6 +173,32 @@ router.post("/sendReport", slackVerification, async (req, res) => {
         ])
       };
       await Users.update(userId, changesToUser);
+      //create an array of response objects
+      if (userId !== "0") {
+        let responseArr = answers.map((answer, index) => {
+          let isNotSentiment = Number.isNaN(Number(answer));
+          return {
+            reportId,
+            userId: id,
+            question: questions[index],
+            // sentimentQuestions: isNotSentiment ? null : questions[index],
+            answer: isNotSentiment ? answer : null,
+            submitted_date: moment().format(),
+            sentimentRange: isNotSentiment ? null : Number(answer)
+          };
+        });
+        await Responses.add(responseArr);
+      } else {
+        let responseObj = {
+          reportId,
+          userId: id,
+          managerQuestions: JSON.stringify(questions),
+          managerResponses: JSON.stringify(answers),
+          submitted_date: moment().format()
+        };
+
+        await Responses.add(responseObj);
+      }
 
       //send confirmation of submission back to user and channel
       confirmation.sendConfirmation(
@@ -153,23 +208,6 @@ router.post("/sendReport", slackVerification, async (req, res) => {
         submission,
         channelId
       );
-      //create an array of response objects
-      let responseArr = answers.map((answer, index) => {
-        let isNotSentiment = Number.isNaN(Number(answer));
-        return {
-          reportId,
-          userId: id,
-          question: questions[index],
-          // sentimentQuestions: isNotSentiment ? null : questions[index],
-          answer: isNotSentiment ? answer : null,
-          submitted_date: moment().format(),
-          sentimentRange: isNotSentiment ? null : Number(answer)
-        };
-      });
-      //insert array of response objects to response table
-      await Responses.add(responseArr);
-      //not sure we need this
-      res.status(200);
     } catch (error) {
       // res.status(500).json({
       //   message: error.message
