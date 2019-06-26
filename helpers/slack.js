@@ -6,6 +6,7 @@ const headers = {
   "Content-type": "application/json; charset=utf-8",
   Authorization: `Bearer ${process.env.SLACK_ACCESS_TOKEN}`
 };
+const Users = require("../models/Users");
 const apiUrl = "https://slack.com/api";
 //Steps for sending out reports
 
@@ -20,127 +21,186 @@ const apiUrl = "https://slack.com/api";
 const button = async reports => {
   try {
     reports.map(async report => {
-      report.users.map(async user => {
-        // console.log("report here", report);
-        let response = null;
-        let result = "";
-        let managerQuestions = JSON.parse(report.managerQuestions);
-        let managerResponses = JSON.parse(report.managerResponses);
+      if (report.managerResponses) {
+        report.users.map(async user => {
+          let response = null;
+          let result = "";
+          let managerQuestions = JSON.parse(report.managerQuestions);
+          let managerResponses = JSON.parse(report.managerResponses);
 
-        try {
-          // combine manager questions with responses to send into slack
-          const message = {
-            user: user.slackUserId,
-            include_locale: true,
-            return_im: true
-          };
-          const { data } = await axios.post(url, message, { headers });
-          if (managerResponses) {
-            const combinedArr = combine(managerQuestions, managerResponses);
-            result = combinedArr.join("");
-            response = {
-              // the response is the message that's being sent to slack.
-              channel: data.channel.id,
-              attachments: [
-                {
-                  blocks: [
-                    {
-                      type: "section",
-                      text: {
-                        type: "mrkdwn",
-                        text: `Hi ${user.fullName} :wave:`
-                      }
-                    },
-                    {
-                      type: "section",
-                      text: {
-                        type: "mrkdwn",
-                        text: `Here is your manager's Goal for the week!`
-                      }
-                    },
-                    {
-                      type: "divider"
-                    },
-                    {
-                      type: "section",
-                      text: {
-                        type: "mrkdwn",
-                        text: result
-                      }
-                    },
-                    {
-                      type: "divider"
-                    },
-                    {
-                      type: "section",
-                      text: {
-                        type: "mrkdwn",
-                        text: `Please fill out your report: ${
-                          report.reportName
-                        }`
-                      },
-                      accessory: {
-                        type: "button",
+          try {
+            // combine manager questions with responses to send into slack
+            const message = {
+              user: user.slackUserId,
+              include_locale: true,
+              return_im: true
+            };
+            const { data } = await axios.post(url, message, { headers });
+            if (managerResponses) {
+              const combinedArr = combine(managerQuestions, managerResponses);
+              result = combinedArr.join("");
+              response = {
+                // the response is the message that's being sent to slack.
+                channel: data.channel.id,
+                attachments: [
+                  {
+                    blocks: [
+                      {
+                        type: "section",
                         text: {
-                          type: "plain_text",
-                          text: "Respond",
-                          emoji: true
+                          type: "mrkdwn",
+                          text: `Hi ${user.fullName} :wave:`
+                        }
+                      },
+                      {
+                        type: "section",
+                        text: {
+                          type: "mrkdwn",
+                          text: `Here is your manager's Goal for the week!`
+                        }
+                      },
+                      {
+                        type: "divider"
+                      },
+                      {
+                        type: "section",
+                        text: {
+                          type: "mrkdwn",
+                          text: result
+                        }
+                      },
+                      {
+                        type: "divider"
+                      },
+                      {
+                        type: "section",
+                        text: {
+                          type: "mrkdwn",
+                          text: `Please fill out your report: ${
+                            report.reportName
+                          }`
                         },
-                        value: JSON.stringify(report)
+                        accessory: {
+                          type: "button",
+                          text: {
+                            type: "plain_text",
+                            text: "Respond",
+                            emoji: true
+                          },
+                          value: JSON.stringify(report)
+                        }
                       }
-                    }
-                  ]
+                    ]
+                  }
+                ]
+              };
+            }
+            if (!managerQuestions) {
+              response = {
+                // the response is the message that's being sent to slack.
+                channel: data.channel.id,
+                attachments: [
+                  {
+                    blocks: [
+                      {
+                        type: "section",
+                        text: {
+                          type: "mrkdwn",
+                          text: `Hi ${user.fullName} :wave:`
+                        }
+                      },
+                      {
+                        type: "divider"
+                      },
+                      {
+                        type: "section",
+                        text: {
+                          type: "mrkdwn",
+                          text: `Please fill out your report: ${
+                            report.reportName
+                          }`
+                        },
+                        accessory: {
+                          type: "button",
+                          text: {
+                            type: "plain_text",
+                            text: "Respond",
+                            emoji: true
+                          },
+                          value: JSON.stringify(report)
+                        }
+                      }
+                    ]
+                  }
+                ]
+              };
+            }
+          } catch (err) {
+            console.log("err", err);
+            throw new Error("please include managers responses");
+          }
+          const responseMessage = await axios.post(postUrl, response, {
+            headers
+          });
+        });
+      } else if (report.managerQuestions && !report.managerResponses) {
+        // if no manager responses are shown, prompt the manager to answer it
+        let response = null;
+        const manager = await Users.findManager(report.teamId);
+        // combine manager questions with responses to send into slack
+        const message = {
+          user: manager.slackUserId,
+          include_locale: true,
+          return_im: true
+        };
+        const { data } = await axios.post(url, message, { headers });
+        response = {
+          // the response is the message that's being sent to slack.
+          channel: data.channel.id,
+          attachments: [
+            {
+              blocks: [
+                {
+                  type: "section",
+                  text: {
+                    type: "mrkdwn",
+                    text: `Hi ${manager.fullName} :wave:`
+                  }
+                },
+                {
+                  type: "section",
+                  text: {
+                    type: "mrkdwn",
+                    text: `Don't forget to answer to your manager questions of the day!`
+                  }
+                },
+                {
+                  type: "divider"
+                },
+                {
+                  type: "section",
+                  text: {
+                    type: "mrkdwn",
+                    text: `Please fill out your responses: ${report.reportName}`
+                  },
+                  accessory: {
+                    type: "button",
+                    text: {
+                      type: "plain_text",
+                      text: "Respond",
+                      emoji: true
+                    },
+                    value: JSON.stringify(report)
+                  }
                 }
               ]
-            };
-          }
-          if (!managerQuestions) {
-            response = {
-              // the response is the message that's being sent to slack.
-              channel: data.channel.id,
-              attachments: [
-                {
-                  blocks: [
-                    {
-                      type: "section",
-                      text: {
-                        type: "mrkdwn",
-                        text: `Hi ${user.fullName} :wave:`
-                      }
-                    },
-                    {
-                      type: "divider"
-                    },
-                    {
-                      type: "section",
-                      text: {
-                        type: "mrkdwn",
-                        text: `Please fill out your report: ${
-                          report.reportName
-                        }`
-                      },
-                      accessory: {
-                        type: "button",
-                        text: {
-                          type: "plain_text",
-                          text: "Respond",
-                          emoji: true
-                        },
-                        value: JSON.stringify(report)
-                      }
-                    }
-                  ]
-                }
-              ]
-            };
-          }
-        } catch (err) {
-          throw new Error("please include managers responses");
-        }
-        const responseMessage = await axios.post(postUrl, response, {
+            }
+          ]
+        };
+        await axios.post(postUrl, response, {
           headers
         });
-      });
+      }
     });
   } catch (err) {
     //sentry call
@@ -166,6 +226,7 @@ function combine(arr1, arr2) {
 // open the dialog by calling dialogs.open method and sending the payload
 const openDialog = async (payload, real_name, value, channel, elements) => {
   // value.id is the id of the report
+  console.log("testvalue", value);
   const dialogData = {
     token: process.env.SLACK_ACCESS_TOKEN,
     trigger_id: payload.trigger_id,
@@ -173,7 +234,8 @@ const openDialog = async (payload, real_name, value, channel, elements) => {
       title: value.reportName,
       callback_id: "report",
       submit_label: "submit",
-      state: `${value.id} ${channel} ${value.users[0].id}`,
+      state: `${value.id} ${channel} ${value.users.length &&
+        value.users[0].id} ${value.teamId}`,
       elements: [
         ...elements,
         {
