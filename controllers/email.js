@@ -23,14 +23,15 @@ router.post("/", async (req, res) => {
 });
 router.post("/sendFeedBack", async (req, res) => {
   try {
-    const { mail } = req.body;
+    const mail = req.body;
+    console.log(mail);
     const msg = {
       to: "lambdalabs13@gmail.com",
       from: "lambdalabs13@gmail.com",
       subject: "User Feedback",
       text: `name:${mail.name} \nemail:${mail.email} \nlikes:${
-        mail.likes
-      } \ndislikes:${mail.dislikes}`
+        mail.like
+      } \ndislikes:${mail.dislike}`
     };
     await sgMail.send(msg);
     res.status(200).end();
