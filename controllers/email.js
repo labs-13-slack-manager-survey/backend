@@ -10,7 +10,7 @@ router.post("/", async (req, res) => {
       to: email,
       from: "lambdalabs13@gmail.com",
       subject: "Welcome to Slackr",
-      text: `Join our Slackr team! Go to https://slackrs-app.netlify.com/login, create a login, and enter your join code (${joinCode}) when prompted.`
+      text: `Join our Slackr team! \n Go to https://slackrs-app.netlify.com/login and enter your join code when prompted. \n Your code: ${joinCode}`
     };
     await sgMail.send(msg);
     res.status(200).end();
