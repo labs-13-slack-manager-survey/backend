@@ -5,10 +5,7 @@ const { findReportsToBeSent } = require("./filters");
 
 const sendReports = () => {
   // get the reports to be sent
-  let obj = {
-    0: [1],
-    1: [1, 2]
-  };
+  let obj = {};
   findReportsToBeSent()
     .then(reports => {
       if (reports.length) {
