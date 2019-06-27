@@ -3,7 +3,7 @@ const express = require("express");
 const Sentry = require("@sentry/node");
 const cron = require("node-cron");
 
-const { slackReports } = require("./helpers/slackReports");
+const { slackReports, sendReports } = require("./helpers/slackReports");
 
 // Url in Interactive Components for production
 // https://master-slack-standup.herokuapp.com/api/slack/sendReport
@@ -15,6 +15,7 @@ const { slackReports } = require("./helpers/slackReports");
 cron.schedule("0 */1 * * * *", () => {
   console.log("cron job running");
   slackReports();
+  sendReports();
 });
 
 const middleware = require("./middleware/config");
