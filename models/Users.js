@@ -108,14 +108,14 @@ async function update(id, user) {
   const editedUser = await db("users")
     .where({ id })
     .update(user);
-  return findById(id);
+  return await findById(id);
 }
 // Update TeamId
 async function updateTeamId(id, user) {
   const editedUser = await db("users")
     .where({ id })
     .update(user);
-  return findById(id);
+  return await findById(id);
 }
 
 // Delete user
