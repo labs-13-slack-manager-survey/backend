@@ -72,9 +72,11 @@ router.get("/", async (req, res) => {
 // if the resource teamId matches the token teamId
 router.get("/:reportId", async (req, res) => {
   const { reportId } = req.params;
-  const { teamId } = req.decodedJwt;
+  const { teamId, subject } = req.decodedJwt;
   try {
     const report = await Reports.findByIdAndTeamId(reportId, teamId);
+    const { pollsReceived } = await Users.findById(subject);
+    console.log(JSON.parse(pollsReceived));
     if (report) {
       const message = "The reports were found in the database.";
       res.status(200).json({
@@ -84,7 +86,9 @@ router.get("/:reportId", async (req, res) => {
           managerQuestions: JSON.parse(report.managerQuestions),
           questions: JSON.parse(report.questions),
           schedule: JSON.parse(report.schedule)
-        }
+        },
+        user: subject,
+        pollsReceived: JSON.parse(pollsReceived)
       });
     } else {
       let message = "No report was found in the database";
