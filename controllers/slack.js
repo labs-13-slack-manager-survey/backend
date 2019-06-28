@@ -2,6 +2,7 @@ const router = require("express").Router();
 const axios = require("axios");
 
 const Users = require("../models/Users");
+const Reports = require("../models/Reports");
 const Responses = require("../models/Responses");
 const moment = require("moment");
 
@@ -199,7 +200,13 @@ router.post("/sendReport", slackVerification, async (req, res) => {
 
         await Responses.add(responseObj);
       }
-
+      if (
+        submission[
+          `What input or feedback would you like to share with the team?`
+        ]
+      ) {
+        await Reports.updateField(reportId, teamId, JSON.stringify(answers));
+      }
       //send confirmation of submission back to user and channel
       confirmation.sendConfirmation(
         user.id,

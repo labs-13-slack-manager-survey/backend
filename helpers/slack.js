@@ -226,7 +226,6 @@ function combine(arr1, arr2) {
 // open the dialog by calling dialogs.open method and sending the payload
 const openDialog = async (payload, real_name, value, channel, elements) => {
   // value.id is the id of the report
-  console.log("testvalue", value);
   const dialogData = {
     token: process.env.SLACK_ACCESS_TOKEN,
     trigger_id: payload.trigger_id,

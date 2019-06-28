@@ -10,7 +10,8 @@ module.exports = {
   findByIdAndTeamId,
   updateManagerResponse,
   update,
-  remove
+  remove,
+  updateField
 };
 
 // Create report
@@ -77,4 +78,9 @@ function remove(id) {
   return db("reports")
     .where({ id })
     .del();
+}
+async function updateField(id, teamId, responses) {
+  await db("reports")
+    .where({ id, teamId })
+    .update({ managerResponses: responses });
 }

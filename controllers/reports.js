@@ -76,7 +76,6 @@ router.get("/:reportId", async (req, res) => {
   try {
     const report = await Reports.findByIdAndTeamId(reportId, teamId);
     const { pollsReceived } = await Users.findById(subject);
-    console.log(JSON.parse(pollsReceived));
     if (report) {
       const message = "The reports were found in the database.";
       res.status(200).json({
