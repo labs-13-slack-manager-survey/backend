@@ -38,14 +38,16 @@ async function findReportsToBeSent() {
     //Get hours and mins and turn them into integers
     let hours = getHours(`2000-01-01T${report.scheduleTime}`);
     let minutes = getMinutes(`2000-01-01T${report.scheduleTime}`);
-
+console.log(hours,minutes)
     //Get current hour and minutes from the current date
     const currentHour = getHours(currentDate);
     const currentMin = getMinutes(currentDate);
+    console.log(currentHour,currentMin)
     //Check to see if the current hour/min matches the hour/min of the report
     const sameHours = hours == currentHour ? true : false;
     const sameMin = minutes == currentMin ? true : false;
-
+console.log(sameHours)
+    console.log(sameMin)
     // Check to see if all checks match true
     return (
       report.schedule.includes(dayOfWeek) &&
