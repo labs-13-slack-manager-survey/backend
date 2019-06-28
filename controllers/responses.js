@@ -167,7 +167,6 @@ router.post("/:reportId", async (req, res) => {
 
     // Parse the stringified questions and map to array
     const resourceQuestions = JSON.parse(resource.questions);
-
     // Compare the questions from the resource variable with the questions from
     // the request body, if the questions don't match, the client has attempted
     // to alter them, throw an error, also check that each response has been
@@ -189,6 +188,7 @@ router.post("/:reportId", async (req, res) => {
     // }
     // All questions have passed verification and can now be inserted to the model
     const now = moment().format();
+
     const responseArr = questions.map(question => ({
       reportId,
       userId: subject,
@@ -204,8 +204,12 @@ router.post("/:reportId", async (req, res) => {
       answer: question.response,
       sentimentRange: question.sentimentRange
     }));
-    await Responses.add(responseArr);
-    await Responses.add(sentimentResArr);
+    if (responseArr.length) {
+      await Responses.add(responseArr);
+    }
+    if (sentimentResArr.length) {
+      await Responses.add(sentimentResArr);
+    }
 
     const batch = {
       date: today,
